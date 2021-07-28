@@ -22,6 +22,7 @@ from eend.chainer_backend.utils import use_single_gpu
 @chainer.dataset.converter()
 def _convert(batch, device):
     def to_device_batch(batch):
+        print("In train.py chainer.dataset.converter decorator.")
         if device is None:
             return batch
         batch_dst = [device.send(x) for x in batch]
@@ -106,14 +107,14 @@ def train(args):
             )
     else:
         raise ValueError('Possible model_type are "Transformer" and "BLSTM"')
-
+    
     if args.gpu >= 0:
         gpuid = use_single_gpu()
         print('GPU device {} is used'.format(gpuid))
         model.to_gpu()
     else:
         gpuid = -1
-    print('Prepared model')
+    print('Model prepared.')
 
     # Setup optimizer
     if args.optimizer == 'adam':

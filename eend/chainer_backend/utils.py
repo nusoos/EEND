@@ -37,7 +37,7 @@ def get_free_gpus():
         if not line:
             continue
         pid, busid = line.strip().split(',')
-        del gpus[busid]
+        if busid in gpus.keys(): del gpus[busid]
     return sorted([gpus[busid] for busid in gpus])
 
 
@@ -61,6 +61,7 @@ def use_single_gpu():
         # single GPU is reserved
         cvd = int(cvd)
     # Use the GPU immediately
+    print(f"Using GPU(s): {str(cvd)}")
     chainer.cuda.get_device_from_id(cvd).use()
     cupy.empty((1,), dtype=cupy.float32)
     return cvd

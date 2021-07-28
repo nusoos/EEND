@@ -29,6 +29,7 @@ def _gen_chunk_indices(data_len, chunk_size):
 
 def infer(args):
     system_info.print_system_info()
+    print("Infer started.")
 
     # Prepare model
     in_size = feature.get_input_dim(
