@@ -78,12 +78,15 @@ if [ $stage -le 1 ]; then
     fi
     work=$model_dir/.work
     mkdir -p $work
+    echo "starting training."
+    echo "Executing: $train_cmd $work/train.log train.py -c $train_config $train_args $train_set $valid_set $model_dir || exit 1"
     $train_cmd $work/train.log \
         train.py \
             -c $train_config \
             $train_args \
             $train_set $valid_set $model_dir \
             || exit 1
+    echo "finished training."
 fi
 
 ave_id=avg${average_start}-${average_end}
