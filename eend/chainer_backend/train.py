@@ -37,7 +37,7 @@ def train(args):
     """
     np.random.seed(args.seed)
     os.environ['CHAINER_SEED'] = str(args.seed)
-    chainer.global_config.cudnn_deterministic = True
+    # chainer.global_config.cudnn_deterministic = True # CUDNN not installed
 
     train_set = KaldiDiarizationDataset(
         args.train_data_dir,
