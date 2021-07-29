@@ -78,7 +78,7 @@ if [ $stage -le 1 ]; then
     fi
     work=$model_dir/.work
     mkdir -p $work
-    echo "starting training."
+    echo "Starting training."
     echo "Executing: $train_cmd $work/train.log train.py -c $train_config $train_args $train_set $valid_set $model_dir || exit 1"
     $train_cmd $work/train.log \
         train.py \

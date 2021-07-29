@@ -114,7 +114,8 @@ def train(args):
         model.to_gpu()
     else:
         gpuid = -1
-    print('Model prepared.')
+        print('No GPU is used.')
+    print('Model args prepared.')
 
     # Setup optimizer
     if args.optimizer == 'adam':
@@ -127,6 +128,7 @@ def train(args):
         raise ValueError(args.optimizer)
 
     optimizer.setup(model)
+    print('Optimizer set up.')
     if args.gradclip > 0:
         optimizer.add_hook(
             chainer.optimizer_hooks.GradientClipping(args.gradclip))
@@ -219,7 +221,8 @@ def train(args):
     trainer.extend(extensions.snapshot(
         filename='snapshot_epoch-{.updater.epoch}'))
 
-    trainer.extend(extensions.dump_graph('main/loss', out_name="cg.dot"))
+    # trainer.extend(extensions.dump_graph('main/loss', out_name="cg.dot")) # seemed to freeze programm
 
+    print('Trainer prepared. Will run now.')
     trainer.run()
     print('Finished!')
