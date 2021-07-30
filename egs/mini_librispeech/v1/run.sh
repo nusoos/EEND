@@ -40,7 +40,7 @@ set -eu
 # Parse the config file to set bash variables like: $train_frame_shift, $infer_gpu
 eval `yaml2bash.py --prefix train $train_config`
 eval `yaml2bash.py --prefix infer $infer_config`
-
+train_cmd+=" JOB=1:30"
 # Append gpu reservation flag to the queuing command
 if [ $train_gpu -le 0 ]; then
     train_cmd+=" --gpu 1"
@@ -80,7 +80,7 @@ if [ $stage -le 1 ]; then
     mkdir -p $work
     echo "Starting training."
     echo "Executing: $train_cmd $work/train.log train.py -c $train_config $train_args $train_set $valid_set $model_dir || exit 1"
-    $train_cmd $work/train.log \
+    $train_cmd $work/trainJOB.log \
         train.py \
             -c $train_config \
             $train_args \
