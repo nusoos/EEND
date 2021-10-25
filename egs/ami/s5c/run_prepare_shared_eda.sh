@@ -126,7 +126,7 @@ if [ $stage -le 0 ]; then
     if ! validate_data_dir.sh --no-text --no-feats local_eval2000_dir; then
         local/eval2000_data_prep.sh eval2000_dir eval2000_transcripts_dir
         utils/fix_data_dir.sh local_eval2000_dir
-    done
+    fi
 
     # # Prepare a collection of NIST SRE and SWB data. This will be used to train,
     # if ! validate_data_dir.sh --no-text --no-feats data/swb_sre_comb; then
