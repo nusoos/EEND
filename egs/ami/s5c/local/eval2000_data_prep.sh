@@ -52,6 +52,15 @@ awk -v sph2pipe=$sph2pipe '{
 }' < $dir/sph.scp | sort > $dir/wav.scp || exit 1;
 #side A - channel 1, side B - channel 2
 
+# sox will be used to convert stereo sph files to mono wav
+# sox=/bin/sox
+# [ ! -x $sox] \
+#   && echo "Could not execute sox programm at $sox" && exit 1;
+
+# awk '{
+#   printf("%s sox %s -t wav - remix 1,2 |\n", $1, $2); 
+# }' < $dir/sph.scp | sort > $dir/wav.scp || exit 1;
+
 # Get segments file...
 # segments file format is: utt-id side-id start-time end-time, e.g.:
 # sw02001-A_000098-001156 sw02001-A 0.98 11.56
