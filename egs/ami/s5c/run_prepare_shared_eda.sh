@@ -153,25 +153,25 @@ if [ $stage -le 0 ]; then
     # fi
 
     # # Prepare a collection of eval2000 and AMI data. This will be used to train.
-    if ! validate_data_dir.sh --no-text --no-feats data/ami_eval2000_comb; then
-        local/make_sre.sh $data_root data
-        # Prepare SWB for x-vector DNN training.
-        local/make_swbd2_phase1.pl $swb2_phase1_train \
-            data/swbd2_phase1_train
-        local/make_swbd2_phase2.pl $data_root/LDC99S79 \
-            data/swbd2_phase2_train
-        local/make_swbd2_phase3.pl $data_root/LDC2002S06 \
-            data/swbd2_phase3_train
-        local/make_swbd_cellular1.pl $data_root/LDC2001S13 \
-            data/swbd_cellular1_train
-        local/make_swbd_cellular2.pl $data_root/LDC2004S07 \
-            data/swbd_cellular2_train
-        # Combine swb and sre data
-        utils/combine_data.sh data/ami_eval2000_comb \
-            data/swbd_cellular1_train data/swbd_cellular2_train \
-            data/swbd2_phase1_train \
-            data/swbd2_phase2_train data/swbd2_phase3_train data/sre
-    fi
+    # if ! validate_data_dir.sh --no-text --no-feats data/ami_eval2000_comb; then
+    #     local/make_sre.sh $data_root data
+    #     # Prepare SWB for x-vector DNN training.
+    #     local/make_swbd2_phase1.pl $swb2_phase1_train \
+    #         data/swbd2_phase1_train
+    #     local/make_swbd2_phase2.pl $data_root/LDC99S79 \
+    #         data/swbd2_phase2_train
+    #     local/make_swbd2_phase3.pl $data_root/LDC2002S06 \
+    #         data/swbd2_phase3_train
+    #     local/make_swbd_cellular1.pl $data_root/LDC2001S13 \
+    #         data/swbd_cellular1_train
+    #     local/make_swbd_cellular2.pl $data_root/LDC2004S07 \
+    #         data/swbd_cellular2_train
+    #     # Combine swb and sre data
+    #     utils/combine_data.sh data/ami_eval2000_comb \
+    #         data/swbd_cellular1_train data/swbd_cellular2_train \
+    #         data/swbd2_phase1_train \
+    #         data/swbd2_phase2_train data/swbd2_phase3_train data/sre
+    # fi
 
     # # musan data. "back-ground
     # if ! validate_data_dir.sh --no-text --no-feats data/musan_noise_bg; then
