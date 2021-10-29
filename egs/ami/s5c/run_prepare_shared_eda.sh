@@ -244,7 +244,7 @@ if [ $stage -le 0 ]; then
 #         fix_data_dir.sh data/ami_eval2000_comb_seg
 #         utils/subset_data_dir_tr_cv.sh data/ami_eval2000_comb_seg data/swb_sre_tr data/swb_sre_cv
 #     fi
-# fi
+fi
 
 # simudir=data/simu
 # if [ $stage -le 1 ]; then
