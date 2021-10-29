@@ -33,7 +33,7 @@ musan_root=/mnt/md0/data/musan
 
 AMI_DIR=/mnt/speechdata/data_from_ml0_data/ami/amicorpus/amicorpus
 eval2000_dir=/mnt/speechdata/data_from_ml0_data/eval2000/hub5e_00
-eval2000_transcripts_dir=mnt/speechdata/data_from_ml0_data/eval2000-transcripts/2000_hub5_eng_eval_tr
+eval2000_transcripts_dir=/mnt/speechdata/data_from_ml0_data/eval2000-transcripts/2000_hub5_eng_eval_tr
 # Modify simulated data storage area.
 # This script distributes simulated data under these directories
 simu_actual_dirs=(
@@ -57,6 +57,9 @@ simu_opts_rvb_prob=0.5
 simu_opts_num_train=100000
 simu_opts_min_utts=10
 simu_opts_max_utts=20
+
+
+test_sets="dev test"
 
 . path.sh
 . cmd.sh
@@ -121,7 +124,7 @@ if [ $stage -le 0 ]; then
     #     done
     # fi
     
-    # Prepare LDC2002S09 (eval2000) dataset. This will be used for training and evaluation.
+    # Prepare LDC2002S09 (eval2000) dataset. This will be used for evaluation.
     local_eval2000_dir=data/eval2000
     if ! validate_data_dir.sh --no-text --no-feats $local_eval2000_dir; then
         local/eval2000_data_prep.sh $eval2000_dir $eval2000_transcripts_dir
@@ -148,6 +151,27 @@ if [ $stage -le 0 ]; then
     #         data/swbd2_phase1_train \
     #         data/swbd2_phase2_train data/swbd2_phase3_train data/sre
     # fi
+
+    # # Prepare a collection of eval2000 and AMI data. This will be used to train.
+    if ! validate_data_dir.sh --no-text --no-feats data/ami_eval2000_comb; then
+        local/make_sre.sh $data_root data
+        # Prepare SWB for x-vector DNN training.
+        local/make_swbd2_phase1.pl $swb2_phase1_train \
+            data/swbd2_phase1_train
+        local/make_swbd2_phase2.pl $data_root/LDC99S79 \
+            data/swbd2_phase2_train
+        local/make_swbd2_phase3.pl $data_root/LDC2002S06 \
+            data/swbd2_phase3_train
+        local/make_swbd_cellular1.pl $data_root/LDC2001S13 \
+            data/swbd_cellular1_train
+        local/make_swbd_cellular2.pl $data_root/LDC2004S07 \
+            data/swbd_cellular2_train
+        # Combine swb and sre data
+        utils/combine_data.sh data/ami_eval2000_comb \
+            data/swbd_cellular1_train data/swbd_cellular2_train \
+            data/swbd2_phase1_train \
+            data/swbd2_phase2_train data/swbd2_phase3_train data/sre
+    fi
 
     # # musan data. "back-ground
     # if ! validate_data_dir.sh --no-text --no-feats data/musan_noise_bg; then
@@ -195,6 +219,31 @@ if [ $stage -le 0 ]; then
     #     fix_data_dir.sh data/swb_sre_comb_seg
     #     utils/subset_data_dir_tr_cv.sh data/swb_sre_comb_seg data/swb_sre_tr data/swb_sre_cv
     # fi
+    # Automatic segmentation using pretrained SAD model
+    #     it will take one day using 30 CPU jobs:
+    #     make_mfcc: 1 hour, compute_output: 18 hours, decode: 0.5 hours
+    sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+    sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+    if ! validate_data_dir.sh --no-text $sad_work_dir/ami_eval2000_comb_seg; then
+        if [ ! -d exp/segmentation_1a ]; then
+            wget http://kaldi-asr.org/models/4/0004_tdnn_stats_asr_sad_1a.tar.gz
+            tar zxf 0004_tdnn_stats_asr_sad_1a.tar.gz
+        fi
+        steps/segmentation/detect_speech_activity.sh \
+            --nj $sad_num_jobs \
+            --graph-opts "$sad_graph_opts" \
+            --transform-probs-opts "$sad_priors_opts" $sad_opts \
+            data/swb_sre_comb $sad_nnet_dir mfcc_hires $sad_work_dir \
+            $sad_work_dir/swb_sre_comb || exit 1
+    fi
+    # Extract >1.5 sec segments and split into train/valid sets
+    if ! validate_data_dir.sh --no-text --no-feats data/swb_sre_cv; then
+        copy_data_dir.sh data/swb_sre_comb data/ami_eval2000_comb_seg
+        awk '$4-$3>1.5{print;}' $sad_work_dir/ami_eval2000_comb_seg/segments > data/swb_sre_comb_seg/segments
+        cp $sad_work_dir/ami_eval2000_comb_seg/{utt2spk,spk2utt} data/ami_eval2000_comb_seg
+        fix_data_dir.sh data/ami_eval2000_comb_seg
+        utils/subset_data_dir_tr_cv.sh data/ami_eval2000_comb_seg data/swb_sre_tr data/swb_sre_cv
+    fi
 fi
 
 # simudir=data/simu
