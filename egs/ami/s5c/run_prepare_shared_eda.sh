@@ -58,8 +58,8 @@ simu_opts_num_train=100000
 simu_opts_min_utts=10
 simu_opts_max_utts=20
 
-
-test_sets="dev test"
+train_set=train
+test_sets="dev eval"
 
 . path.sh
 . cmd.sh

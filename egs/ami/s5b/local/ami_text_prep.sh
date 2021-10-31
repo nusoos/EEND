@@ -17,7 +17,7 @@ mkdir -p $dir
 echo "Downloading annotations..."
 
 amiurl=http://groups.inf.ed.ac.uk/ami
-annotver=ami_public_manual_1.6.1
+annotver=ami_public_manual_1.6.2
 annot="$dir/$annotver"
 
 logdir=data/local/downloads; mkdir -p $logdir/log
