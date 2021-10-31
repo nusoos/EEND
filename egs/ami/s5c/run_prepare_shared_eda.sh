@@ -226,6 +226,8 @@ if [ $stage -le 1 ]; then
 fi
 
 if [ $stage -le 2 ]; then
+    sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+    sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
     echo "Starting extracting 1.5s segments and splitting into train/valid sets."
     # Extract >1.5 sec segments and split into train/valid sets
     if ! validate_data_dir.sh --no-text --no-feats data/train_seg; then
