@@ -78,23 +78,25 @@ if [ $stage -le 0 ]; then
 
     # From ami/s5c/run.sh
     # Prepare data directories.
+    ami_data_dir=data/ami
     for dataset in train $test_sets; do
         echo "$0: preparing $dataset set.."
-        mkdir -p data/$dataset
+        mkdir -p $ami_data_dir/$dataset
         local/prepare_data.py data/local/annotations/${dataset}.txt \
-            $AMI_DIR data/$dataset
-        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true data/$dataset/rttm.annotation \
-            <(awk '{print $2" "$2" "$3}' data/$dataset/rttm.annotation |sort -u) \
-        data/$dataset/utt2spk data/$dataset/segments
+            $AMI_DIR $ami_data_dir/$dataset
+        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true data/$dataset/rttm \
+            <(awk '{print $2" "$2" "$3}' data/$dataset/rttm |sort -u) \
+        $ami_data_dir/$dataset/utt2spk $ami_data_dir/$dataset/segments
 
         # For the test sets we create dummy segments and utt2spk files using oracle speech marks
         if ! [ $dataset == "train" ]; then
-            local/get_all_segments.py data/$dataset/rttm.annotation > data/$dataset/segments
-            awk '{print $1,$2}' data/$dataset/segments > data/$dataset/utt2spk
+            local/get_all_segments.py $ami_data_dir/$dataset/rttm > $ami_data_dir/$dataset/segments
+            awk '{print $1,$2}' $ami_data_dir/$dataset/segments > $ami_data_dir/$dataset/utt2spk
         fi
 
-        utils/utt2spk_to_spk2utt.pl data/$dataset/utt2spk > data/$dataset/spk2utt
-        utils/fix_data_dir.sh data/$dataset
+        utils/utt2spk_to_spk2utt.pl $ami_data_dir/$dataset/utt2spk > $ami_data_dir/$dataset/spk2utt
+        utils/data/get_reco2dur.sh $ami_data_dir/$dataset
+        utils/fix_data_dir.sh $ami_data_dir/$dataset
     done
 
     # # Prepare CALLHOME dataset. This will be used to evaluation.
@@ -217,7 +219,7 @@ if [ $stage -le 1 ]; then
             --nj $sad_num_jobs \
             --graph-opts "$sad_graph_opts" \
             --transform-probs-opts "$sad_priors_opts" $sad_opts \
-            data/train $sad_nnet_dir mfcc_hires $sad_work_dir \
+            data/ami/train $sad_nnet_dir mfcc_hires $sad_work_dir \
             $sad_work_dir/train || exit 1
     fi
     echo "Concluded SAD segmentation."
