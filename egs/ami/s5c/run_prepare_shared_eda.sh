@@ -301,7 +301,8 @@ fi
 if [ $stage -le 3 ]; then
     echo "Starting composing adapt and eval set."
     if ! validate_data_dir.sh --no-text --no-feats data/eval2000_eval \
-        || validate_data_dir.sh --no-text --no-feats data/eval2000_adapt; then
+        || ! validate_data_dir.sh --no-text --no-feats data/eval2000_adapt; then
+        mkdir -p data/eval2000_eval data/eval2000_adapt
         utils/subset_data_dir_tr_cv.sh data/eval2000 data/eval2000_eval data/eval2000_adapt --cv-spk-percent 50
     fi
     echo "Concluding composing adapt and eval set."
