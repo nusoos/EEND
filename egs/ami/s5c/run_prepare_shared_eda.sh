@@ -84,7 +84,7 @@ if [ $stage -le 0 ]; then
         mkdir -p $ami_data_dir/$dataset
         local/prepare_data.py data/local/annotations/${dataset}.txt \
             $AMI_DIR $ami_data_dir/$dataset
-        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true data/$dataset/rttm.annotation \
+        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true $ami_data_dir/$dataset/rttm.annotation \
             <(awk '{print $2" "$2" "$3}' $ami_data_dir/$dataset/rttm.annotation |sort -u) \
         $ami_data_dir/$dataset/utt2spk $ami_data_dir/$dataset/segments
 
