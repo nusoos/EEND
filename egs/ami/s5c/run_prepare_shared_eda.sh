@@ -299,20 +299,20 @@ fi
 # fi
 
 if [ $stage -le 3 ]; then
-    echo "Starting composing adapt and eval set."
+    echo "Starting subset of adapt and eval set."
     if ! validate_data_dir.sh --no-text --no-feats data/eval2000_eval \
         || ! validate_data_dir.sh --no-text --no-feats data/eval2000_adapt; then
         mkdir -p data/eval2000_eval data/eval2000_adapt
         utils/subset_data_dir_tr_cv.sh --cv-spk-percent 50 data/eval2000 data/eval2000_eval data/eval2000_adapt
     fi
-    echo "Concluding composing adapt and eval set."
+    echo "Concluding subset of adapt and eval set."
 fi
 
 if [ $stage -le 4 ]; then
     echo "Starting composing eval and adapt sets."
     eval_set=data/eval/eval2000_eval
     if ! validate_data_dir.sh --no-text --no-feats $eval_set; then
-        utils/copy_data_dir.sh data/eval_2000_eval $eval_set
+        utils/copy_data_dir.sh data/eval2000_eval $eval_set
         steps/segmentation/convert_utt2spk_and_segments_to_rttm.py \
             data/eval/eval2000_eval/utt2spk data/eval/eval2000_eval/segments \
             data/eval/eval2000_eval/rttm
