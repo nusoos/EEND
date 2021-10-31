@@ -151,28 +151,6 @@ if [ $stage -le 0 ]; then
     #         data/swbd2_phase1_train \
     #         data/swbd2_phase2_train data/swbd2_phase3_train data/sre
     # fi
-    
-
-    # # Prepare a collection of eval2000 and AMI data. This will be used to evaluate.
-    # if ! validate_data_dir.sh --no-text --no-feats data/ami_eval2000_comb; then
-    #     local/make_sre.sh $data_root data
-    #     # Prepare SWB for x-vector DNN training.
-    #     local/make_swbd2_phase1.pl $swb2_phase1_train \
-    #         data/swbd2_phase1_train
-    #     local/make_swbd2_phase2.pl $data_root/LDC99S79 \
-    #         data/swbd2_phase2_train
-    #     local/make_swbd2_phase3.pl $data_root/LDC2002S06 \
-    #         data/swbd2_phase3_train
-    #     local/make_swbd_cellular1.pl $data_root/LDC2001S13 \
-    #         data/swbd_cellular1_train
-    #     local/make_swbd_cellular2.pl $data_root/LDC2004S07 \
-    #         data/swbd_cellular2_train
-    #     # Combine swb and sre data
-    #     utils/combine_data.sh data/ami_eval2000_comb \
-    #         data/swbd_cellular1_train data/swbd_cellular2_train \
-    #         data/swbd2_phase1_train \
-    #         data/swbd2_phase2_train data/swbd2_phase3_train data/sre
-    # fi
 
     # # musan data. "back-ground
     # if ! validate_data_dir.sh --no-text --no-feats data/musan_noise_bg; then
@@ -220,9 +198,6 @@ if [ $stage -le 0 ]; then
     #     fix_data_dir.sh data/swb_sre_comb_seg
     #     utils/subset_data_dir_tr_cv.sh data/swb_sre_comb_seg data/swb_sre_tr data/swb_sre_cv
     # fi
-
-    
-
 fi
 
 if [ $stage -le 1 ]; then
@@ -323,6 +298,14 @@ fi
 #     done
 # fi
 
+if [ $stage -le 3 ]; then
+    echo "Starting composing adapt and eval set."
+    if ! validate_data_dir.sh --no-text --no-feats data/eval2000_eval \
+        || validate_data_dir.sh --no-text --no-feats data/eval2000_adapt; then
+        utils/subset_data_dir_tr_cv.sh data/train_seg data/eval2000_eval data/eval2000_adapt --cv-spk-percent 50
+    fi
+    echo "Concluding composing adapt and eval set."
+fi
 # if [ $stage -le 3 ]; then
 #     # compose eval/callhome2_spkall
 #     eval_set=data/eval/callhome2_spkall
