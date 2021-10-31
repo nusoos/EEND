@@ -307,6 +307,36 @@ if [ $stage -le 3 ]; then
     fi
     echo "Concluding composing adapt and eval set."
 fi
+
+if [ $stage -le 4 ]; then
+    echo "Starting composing eval and adapt sets."
+    eval_set=data/eval/eval2000_eval
+    if ! validate_data_dir.sh --no-text --no-feats $eval_set; then
+        utils/copy_data_dir.sh data/eval_2000_eval $eval_set
+        steps/segmentation/convert_utt2spk_and_segments_to_rttm.py \
+            data/eval/eval2000_eval/utt2spk data/eval/eval2000_eval/segments \
+            data/eval/eval2000_eval/rttm
+        #cp data/callhome2_spkall/rttm $eval_set/rttm
+        awk -v dstdir=wav/eval/eval2000_eval '{print $1, dstdir"/"$1".wav"}' data/eval2000_eval/wav.scp > $eval_set/wav.scp
+        mkdir -p wav/eval/eval2000_eval
+        wav-copy scp:data/eval2000_eval/wav.scp scp:$eval_set/wav.scp
+        utils/data/get_reco2dur.sh $eval_set
+    fi
+
+    adapt_set=data/eval/eval2000_adapt
+    if ! validate_data_dir.sh --no-text --no-feats $adapt_set; then
+        utils/copy_data_dir.sh data/eval2000_adapt $adapt_set
+        steps/segmentation/convert_utt2spk_and_segments_to_rttm.py \
+            data/eval/eval2000_adapt/utt2spk data/eval/eval2000_adapt/segments \
+            data/eval/eval2000_adapt/rttm
+        #cp data/callhome1_spkall/rttm $adapt_set/rttm
+        awk -v dstdir=wav/eval/eval2000_adapt '{print $1, dstdir"/"$1".wav"}' data/eval2000_adapt/wav.scp > $adapt_set/wav.scp
+        mkdir -p wav/eval/eval2000_adapt
+        wav-copy scp:data/eval2000_adapt/wav.scp scp:$adapt_set/wav.scp
+        utils/data/get_reco2dur.sh $adapt_set
+    fi
+    echo "Concluding composing eval and adapt sets."
+fi
 # if [ $stage -le 3 ]; then
 #     # compose eval/callhome2_spkall
 #     eval_set=data/eval/callhome2_spkall
