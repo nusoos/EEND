@@ -85,7 +85,7 @@ if [ $stage -le 0 ]; then
         local/prepare_data.py data/local/annotations/${dataset}.txt \
             $AMI_DIR $ami_data_dir/$dataset
         local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true data/$dataset/rttm.annotations \
-            <(awk '{print $2" "$2" "$3}' data/$dataset/rttm.annotations |sort -u) \
+            <(awk '{print $2" "$2" "$3}' $ami_data_dir/$dataset/rttm.annotations |sort -u) \
         $ami_data_dir/$dataset/utt2spk $ami_data_dir/$dataset/segments
 
         # For the test sets we create dummy segments and utt2spk files using oracle speech marks
