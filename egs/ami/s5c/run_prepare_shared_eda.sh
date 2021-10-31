@@ -228,8 +228,8 @@ fi
 if [ $stage -le 2 ]; then
     echo "Starting extracting 1.5s segments and splitting into train/valid sets."
     # Extract >1.5 sec segments and split into train/valid sets
-    if ! validate_data_dir.sh --no-text --no-feats data/train_cv; then
-        copy_data_dir.sh data/train data/train_seg
+    if ! validate_data_dir.sh --no-text --no-feats data/train_seg; then
+        copy_data_dir.sh data/ami/train data/train_seg
         awk '$4-$3>1.5{print;}' $sad_work_dir/train_seg/segments > data/train_seg/segments
         cp $sad_work_dir/train_seg/{utt2spk,spk2utt} data/train_seg
         fix_data_dir.sh data/train_seg
