@@ -11,8 +11,8 @@ stage=0
 train_2spk_set=data/simu/data/swb_sre_tr_ns2_beta2_100000
 valid_2spk_set=data/simu/data/swb_sre_cv_ns2_beta2_500
 train_set=data/train
-valid_set=data/train_tr
-adapt_set=data/train_cv
+valid_set=data/eval
+adapt_set=data/eval/eval2000_adapt
 adapt_valid_set=data/eval/eval2000_eval
 
 # Base config files for {train,infer}.py
@@ -203,7 +203,7 @@ if [ $stage -le 7 ]; then
         echo " if you want to retry, please remove it."
         exit 1
     fi
-    for dset in callhome2_spkall; do
+    for dset in eval2000_eval; do
         work=$infer_dir/$dset/.work
         mkdir -p $work
         $train_cmd $work/infer.log \
@@ -223,7 +223,7 @@ if [ $stage -le 8 ]; then
         echo " if you want to retry, please remove it."
         exit 1
     fi
-    for dset in callhome2_spkall; do
+    for dset in eval2000_eval; do
         work=$scoring_dir/$dset/.work
         mkdir -p $work
         find $infer_dir/$dset -iname "*.h5" > $work/file_list_$dset
@@ -241,7 +241,7 @@ if [ $stage -le 8 ]; then
 fi
 
 if [ $stage -le 9 ]; then
-    for dset in callhome2_spkall; do
+    for dset in eval2000_eval; do
         best_score.sh $scoring_dir/$dset
     done
 fi
