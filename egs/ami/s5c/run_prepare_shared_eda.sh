@@ -225,7 +225,7 @@ if [ $stage -le 0 ]; then
 
 fi
 
-if [ $stage -le 1]; then
+if [ $stage -le 1 ]; then
     echo "Starting SAD segmentation."
     
     # Automatic segmentation using pretrained SAD model
@@ -248,7 +248,7 @@ if [ $stage -le 1]; then
     echo "Concluded SAD segmentation."
 fi
 
-if [ $stage -le 2]; then
+if [ $stage -le 2 ]; then
     echo "Starting extracting 1.5s segments and splitting into train/valid sets."
     # Extract >1.5 sec segments and split into train/valid sets
     if ! validate_data_dir.sh --no-text --no-feats data/train_cv; then
