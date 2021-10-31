@@ -84,13 +84,13 @@ if [ $stage -le 0 ]; then
         mkdir -p $ami_data_dir/$dataset
         local/prepare_data.py data/local/annotations/${dataset}.txt \
             $AMI_DIR $ami_data_dir/$dataset
-        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true data/$dataset/rttm \
-            <(awk '{print $2" "$2" "$3}' data/$dataset/rttm |sort -u) \
+        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true data/$dataset/rttm.annotations \
+            <(awk '{print $2" "$2" "$3}' data/$dataset/rttm.annotations |sort -u) \
         $ami_data_dir/$dataset/utt2spk $ami_data_dir/$dataset/segments
 
         # For the test sets we create dummy segments and utt2spk files using oracle speech marks
         if ! [ $dataset == "train" ]; then
-            local/get_all_segments.py $ami_data_dir/$dataset/rttm > $ami_data_dir/$dataset/segments
+            local/get_all_segments.py $ami_data_dir/$dataset/rttm.annotations > $ami_data_dir/$dataset/segments
             awk '{print $1,$2}' $ami_data_dir/$dataset/segments > $ami_data_dir/$dataset/utt2spk
         fi
 
