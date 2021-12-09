@@ -35,8 +35,8 @@ simu_actual_dirs=(
 )
 
 # data preparation options
-max_jobs_run=4
-sad_num_jobs=30
+max_jobs_run=8 #4
+sad_num_jobs=48 #30
 sad_opts="--extra-left-context 79 --extra-right-context 21 --frames-per-chunk 150 --extra-left-context-initial 0 --extra-right-context-final 0 --acwt 0.3"
 sad_graph_opts="--min-silence-duration=0.03 --min-speech-duration=0.3 --max-speech-duration=10.0"
 sad_priors_opts="--sil-scale=0.1"

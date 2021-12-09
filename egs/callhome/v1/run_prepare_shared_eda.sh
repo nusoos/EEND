@@ -22,10 +22,14 @@ stage=0
 #    LDC2011S10, LDC2012S01, LDC2011S05, LDC2011S08
 #  - musan_root
 #    MUSAN corpus (https://www.openslr.org/17/)
+# callhome_dir=/export/corpora/NIST/LDC2001S97
+# swb2_phase1_train=/export/corpora/LDC/LDC98S75
+# data_root=/export/corpora5/LDC
+# musan_root=/export/corpora/JHU/musan
 callhome_dir=/export/corpora/NIST/LDC2001S97
-swb2_phase1_train=/export/corpora/LDC/LDC98S75
-data_root=/export/corpora5/LDC
-musan_root=/export/corpora/JHU/musan
+swb2_phase1_train=/mnt/md0/data/ldc/LDC98S75
+data_root=/mnt/md0/data/ldc
+musan_root=/mnt/md0/data/musan
 # Modify simulated data storage area.
 # This script distributes simulated data under these directories
 simu_actual_dirs=(

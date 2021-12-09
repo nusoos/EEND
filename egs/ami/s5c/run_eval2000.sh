@@ -20,7 +20,12 @@
 set -euo pipefail
 mfccdir=`pwd`/mfcc
 
-stage=0
+# from this stage to end
+from_stage=
+# only these stages
+stages=
+last_stage=9
+
 overlap_stage=0
 diarizer_stage=0
 nj=50
@@ -28,43 +33,40 @@ decode_nj=15
 
 model_dir=exp/xvector_nnet_1a
 
-train_set=train
-test_sets="dev test"
+#train_set=train # ami
+train_set=train # ami
+test_sets="eval2000"
+#test_sets="dev test" # ami
 
 diarizer_type=spectral  # must be one of (ahc, spectral, vbx)
 
+AMI_DIR=/mnt/speechdata/ami/amicorpus/amicorpus
+eval2000_dir=/mnt/speechdata/eval2000/hub5e_00
+eval2000_transcripts_dir=/mnt/speechdata/eval2000-transcripts/2000_hub5_eng_eval_tr
+
 . utils/parse_options.sh
 
-# Path where AMI gets downloaded (or where locally available):
-AMI_DIR=$PWD/wav_db # Default,
-case $(hostname -d) in
-  fit.vutbr.cz) AMI_DIR=/mnt/matylda5/iveselyk/KALDI_AMI_WAV ;; # BUT,
-  clsp.jhu.edu) AMI_DIR=/export/corpora5/amicorpus ;; # JHU,
-  cstr.ed.ac.uk) AMI_DIR= ;; # Edinburgh,
-esac
+stage=0
 
-# Download AMI corpus, You need around 130GB of free space to get whole data
-if [ $stage -le 1 ]; then
-  if [ -d $AMI_DIR ] && ! touch $AMI_DIR/.foo 2>/dev/null; then
-    echo "$0: directory $AMI_DIR seems to exist and not be owned by you."
-    echo " ... Assuming the data does not need to be downloaded.  Please use --stage 2 or more."
+if [ "${#stages}" -eq 0 ]; then
+  if [ ${from_stage} -ge 0 ]; then
+    echo "No stage array was delivered. Using stage to determine array."
+    stages=($(seq -s'' $from_stage $last_stage))
+  else
+    echo "No stage information was provided. Exiting."
     exit 1
-  fi
-  if [ -e data/local/downloads/wget_$mic.sh ]; then
-    echo "data/local/downloads/wget_$mic.sh already exists, better quit than re-download... (use --stage N)"
-    exit 1
-  fi
-  local/ami_download.sh $mic $AMI_DIR
+  fi  
 fi
 
-# Prepare data directories. 
-if [ $stage -le 2 ]; then
+# stage 0
+# Prepare training data directories. 
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   # Download the data split and references from BUT's AMI setup
   if ! [ -d AMI-diarization-setup ]; then
     git clone https://github.com/BUTSpeechFIT/AMI-diarization-setup
   fi
 
-  for dataset in train $test_sets; do
+  for dataset in train; do
     echo "$0: preparing $dataset set.."
     mkdir -p data/$dataset
     # Prepare wav.scp and segments file from meeting lists and oracle SAD
@@ -80,23 +82,55 @@ if [ $stage -le 2 ]; then
     utils/fix_data_dir.sh data/$dataset
   done
 fi
+((stage+=1))
 
-# Feature extraction
-if [ $stage -le 3 ]; then
-  for dataset in train $test_sets; do
+# stage 1
+# Prepare eval2000 test set
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
+  local_eval2000_dir=data/eval2000
+  if ! validate_data_dir.sh --no-text --no-feats $local_eval2000_dir; then
+      local/eval2000_data_prep.sh $eval2000_dir $eval2000_transcripts_dir
+      utils/fix_data_dir.sh $local_eval2000_dir
+  fi
+
+  # create rttm.annotation for eval2000
+  steps/segmentation/convert_utt2spk_and_segments_to_rttm.py \
+    data/eval2000/utt2spk data/eval2000/segments \
+    data/eval2000/rttm.annotation
+fi
+((stage+=1))
+
+# stage 2
+# Feature extraction only for test set
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
+  for dataset in $test_sets; do
     steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
     steps/compute_cmvn_stats.sh data/$dataset
     utils/fix_data_dir.sh data/$dataset
   done
 fi
 
-if [ $stage -le 4 ]; then
+# stage 3
+# Feature extraction
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
+  for dataset in train $test_sets; do
+    steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
+    steps/compute_cmvn_stats.sh data/$dataset
+    utils/fix_data_dir.sh data/$dataset
+  done
+fi
+((stage+=1))
+
+# stage 4
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: preparing a AMI training data to train PLDA model"
   local/nnet3/xvector/prepare_feats.sh --nj $nj --cmd "$train_cmd" \
     data/train data/plda_train exp/plda_train_cmn
 fi
+((stage+=1))
 
-if [ $stage -le 5 ]; then
+# stage 5
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: extracting x-vector for PLDA training data"
   utils/fix_data_dir.sh data/plda_train
   diarization/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd --mem 10G" \
@@ -104,9 +138,11 @@ if [ $stage -le 5 ]; then
     --hard-min true $model_dir \
     data/plda_train $model_dir/xvectors_plda_train
 fi
+((stage+=1))
 
+# stage 6
 # Train PLDA models
-if [ $stage -le 6 ]; then
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: training PLDA model"
   # Compute the mean vector for centering the evaluation xvectors.
   $train_cmd $model_dir/xvectors_plda_train/log/compute_mean.log \
@@ -125,8 +161,10 @@ if [ $stage -le 6 ]; then
   cp $model_dir/xvectors_plda_train/transform.mat $model_dir/
   cp $model_dir/xvectors_plda_train/mean.vec $model_dir/
 fi
+((stage+=1))
 
-if [ $stage -le 7 ]; then
+# stage 7
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   for datadir in ${test_sets}; do
     ref_rttm=data/${datadir}/rttm.annotation
 
@@ -143,16 +181,20 @@ if [ $stage -le 7 ]; then
     md-eval.pl -r $ref_rttm -s exp/${datadir}_diarization_${diarizer_type}/rttm${rttm_affix}
   done
 fi
+((stage+=1))
 
+# stage 8
 # These stages demonstrate how to perform training and inference
 # for an overlap detector.
-if [ $stage -le 8 ]; then
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: training overlap detector"
   local/train_overlap_detector.sh --stage $overlap_stage --test-sets "$test_sets" $AMI_DIR
 fi
+((stage+=1))
 
+# stage 9
 overlap_affix=1a
-if [ $stage -le 9 ]; then
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   for dataset in $test_sets; do
     echo "$0: performing overlap detection on $dataset"
     local/detect_overlaps.sh --convert_data_dir_to_whole true \
@@ -165,4 +207,5 @@ if [ $stage -le 9 ]; then
       awk 'or(/MISSED SPEAKER TIME/,/FALARM SPEAKER TIME/)'
   done
 fi
+((stage+=1))
 
