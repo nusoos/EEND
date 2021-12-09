@@ -37,7 +37,7 @@ def train(args):
     """
     np.random.seed(args.seed)
     os.environ['CHAINER_SEED'] = str(args.seed)
-    # chainer.global_config.cudnn_deterministic = True # CUDNN not installed
+    # chainer.global_config.cudnn_deterministic = True # not used because CUDNN is not installed
 
     train_set = KaldiDiarizationDataset(
         args.train_data_dir,
@@ -106,7 +106,7 @@ def train(args):
             )
     else:
         raise ValueError('Possible model_type are "Transformer" and "BLSTM"')
-    
+    print(f'Choosing model: {args.model_type}.')
     if args.gpu >= 0:
         gpuid = use_single_gpu()
         print('GPU device {} is used'.format(gpuid))
@@ -220,8 +220,8 @@ def train(args):
     trainer.extend(extensions.snapshot(
         filename='snapshot_epoch-{.updater.epoch}'))
 
-    # trainer.extend(extensions.dump_graph('main/loss', out_name="cg.dot")) # seemed to freeze programm
+    # trainer.extend(extensions.dump_graph('main/loss', out_name="cg.dot")) # froze program
 
     print('Trainer prepared. Will run now.')
     trainer.run()
-    print('Finished!')
+    print('Trainer finished!')
