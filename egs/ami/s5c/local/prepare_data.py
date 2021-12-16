@@ -36,7 +36,7 @@ def write_wav(df_wav, output_path, bin_wav=True):
         for key,file_path in zip(df_wav['key'], df_wav['file_path']):
             key = key.split('.')[0]
             if bin_wav:
-                f.write('%s sox %s -t wav - remix 1 | \n' % (key, file_path))
+                f.write('%s sox %s -t wav -r 8000 - remix 1 | \n' % (key, file_path))
             else:
                 f.write('%s %s\n' % (key, file_path))
                 
