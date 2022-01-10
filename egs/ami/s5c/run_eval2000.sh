@@ -105,17 +105,6 @@ fi
 ((stage+=1))
 
 # stage 2
-# Feature extraction only for test set
-if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
-  echo "$0: Feature extraction for test set."
-  for dataset in $test_sets; do
-    steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
-    steps/compute_cmvn_stats.sh data/$dataset
-    utils/fix_data_dir.sh data/$dataset
-  done
-fi
-
-# stage 3
 # Feature extraction only for train set
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: Feature extraction for train set."
@@ -126,6 +115,18 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   done
 fi
 ((stage+=1))
+
+# stage 3
+# Feature extraction only for test set
+# if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
+#   echo "$0: Feature extraction for test set."
+#   for dataset in $test_sets; do
+#     steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
+#     steps/compute_cmvn_stats.sh data/$dataset
+#     utils/fix_data_dir.sh data/$dataset
+#   done
+# fi
+# ((stage+=1))
 
 # stage 4
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
