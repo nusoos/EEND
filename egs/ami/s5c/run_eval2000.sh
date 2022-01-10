@@ -22,9 +22,9 @@ mfccdir=`pwd`/mfcc
 
 
 # only these stages
-stages=
+stages=""
 # if not: from this stage to end
-from_stage=
+from_stage=0
 last_stage=9
 
 overlap_stage=0
@@ -52,9 +52,10 @@ stage=0
 if [ "${#stages}" -eq 0 ]; then
   if [ ${from_stage} -ge 0 ]; then
     echo "$0: No stage array was delivered. Using stage to determine array."
-    stages=($(seq -s'' $from_stage $last_stage))
+    stages=($(seq ${from_stage} 1 ${last_stage}))
   else
-    echo "$0: No stage information was provided. Exiting."
+    echo "$0: No stage information was provided."
+    echo '$0: Use e.g. --from_stage 0 or --stages "0 1 4". Exiting.'
     exit 1
   fi  
 fi
