@@ -58,6 +58,7 @@ if [ "${#stages}" -eq 0 ]; then
     echo '$0: Use e.g. --from_stage 0 or --stages "0 1 4". Exiting.'
     exit 1
   fi  
+  echo "$0: Will execute following stages: ${stages[@]}"
 fi
 
 # stage 0
@@ -69,7 +70,7 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   fi
 
   for dataset in train; do
-    echo "$0: Preparing $dataset set.."
+    echo "$0: Preparing AMI $dataset set."
     mkdir -p data/$dataset
     # Prepare wav.scp and segments file from meeting lists and oracle SAD
     # labels, and concatenate all reference RTTMs into one file.
@@ -138,7 +139,7 @@ fi
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: Extracting x-vector for PLDA training data."
   utils/fix_data_dir.sh data/plda_train
-  diarization/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd --mem 10G" \
+  diarization/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd" \
     --nj $nj --window 3.0 --period 10.0 --min-segment 1.5 --apply-cmn false \
     --hard-min true $model_dir \
     data/plda_train $model_dir/xvectors_plda_train
