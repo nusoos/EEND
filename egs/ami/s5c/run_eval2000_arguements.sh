@@ -6,4 +6,4 @@
 set -euo pipefail
 
 #./run_eval2000.sh --stages "1 2 7"
-./run_eval2000.sh --from_stage=0
+./run_eval2000.sh --from_stage 0

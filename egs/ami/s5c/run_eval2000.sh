@@ -24,7 +24,7 @@ mfccdir=`pwd`/mfcc
 # only these stages
 stages=
 # if not: from this stage to end
-from_stage=0
+from_stage=
 last_stage=9
 
 overlap_stage=0
