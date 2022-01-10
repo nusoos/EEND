@@ -20,10 +20,11 @@
 set -euo pipefail
 mfccdir=`pwd`/mfcc
 
-# from this stage to end
-from_stage=
+
 # only these stages
 stages=
+# if not: from this stage to end
+from_stage=0
 last_stage=9
 
 overlap_stage=0
@@ -59,7 +60,7 @@ if [ "${#stages}" -eq 0 ]; then
 fi
 
 # stage 0
-# Prepare training data directories. 
+# Prepare AMI training data directories. 
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   # Download the data split and references from BUT's AMI setup
   if ! [ -d AMI-diarization-setup ]; then
