@@ -50,10 +50,10 @@ stage=0
 
 if [ "${#stages}" -eq 0 ]; then
   if [ ${from_stage} -ge 0 ]; then
-    echo "No stage array was delivered. Using stage to determine array."
+    echo "$0: No stage array was delivered. Using stage to determine array."
     stages=($(seq -s'' $from_stage $last_stage))
   else
-    echo "No stage information was provided. Exiting."
+    echo "$0: No stage information was provided. Exiting."
     exit 1
   fi  
 fi
@@ -67,7 +67,7 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   fi
 
   for dataset in train; do
-    echo "$0: preparing $dataset set.."
+    echo "$0: Preparing $dataset set.."
     mkdir -p data/$dataset
     # Prepare wav.scp and segments file from meeting lists and oracle SAD
     # labels, and concatenate all reference RTTMs into one file.
@@ -87,6 +87,7 @@ fi
 # stage 1
 # Prepare eval2000 test set
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
+  echo "$0: Preparing eval2000 test set."
   local_eval2000_dir=data/eval2000
   if ! validate_data_dir.sh --no-text --no-feats $local_eval2000_dir; then
       local/eval2000_data_prep.sh $eval2000_dir $eval2000_transcripts_dir
@@ -103,6 +104,7 @@ fi
 # stage 2
 # Feature extraction only for test set
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
+  echo "$0: Feature extraction for test set."
   for dataset in $test_sets; do
     steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
     steps/compute_cmvn_stats.sh data/$dataset
@@ -113,7 +115,8 @@ fi
 # stage 3
 # Feature extraction only for train set
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
-  for dataset in train; do
+  echo "$0: Feature extraction for train set."
+  for dataset in $train_set; do
     steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
     steps/compute_cmvn_stats.sh data/$dataset
     utils/fix_data_dir.sh data/$dataset
@@ -123,7 +126,7 @@ fi
 
 # stage 4
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
-  echo "$0: preparing a AMI training data to train PLDA model"
+  echo "$0: Preparing AMI training data to train PLDA model."
   local/nnet3/xvector/prepare_feats.sh --nj $nj --cmd "$train_cmd" \
     data/train data/plda_train exp/plda_train_cmn
 fi
@@ -131,7 +134,7 @@ fi
 
 # stage 5
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
-  echo "$0: extracting x-vector for PLDA training data"
+  echo "$0: Extracting x-vector for PLDA training data."
   utils/fix_data_dir.sh data/plda_train
   diarization/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd --mem 10G" \
     --nj $nj --window 3.0 --period 10.0 --min-segment 1.5 --apply-cmn false \
@@ -143,7 +146,7 @@ fi
 # stage 6
 # Train PLDA models
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
-  echo "$0: training PLDA model"
+  echo "$0: Training PLDA model."
   # Compute the mean vector for centering the evaluation xvectors.
   $train_cmd $model_dir/xvectors_plda_train/log/compute_mean.log \
     ivector-mean scp:$model_dir/xvectors_plda_train/xvector.scp \
@@ -187,7 +190,7 @@ fi
 # These stages demonstrate how to perform training and inference
 # for an overlap detector.
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
-  echo "$0: training overlap detector"
+  echo "$0: Training overlap detector."
   local/train_overlap_detector.sh --stage $overlap_stage --test-sets "$test_sets" $AMI_DIR
 fi
 ((stage+=1))
@@ -196,7 +199,7 @@ fi
 overlap_affix=1a
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   for dataset in $test_sets; do
-    echo "$0: performing overlap detection on $dataset"
+    echo "$0: Performing overlap detection on ${dataset}."
     local/detect_overlaps.sh --convert_data_dir_to_whole true \
       --output-scale "1 2 1" data/${dataset} \
       exp/overlap_$overlap_affix/tdnn_lstm_1a exp/overlap_$overlap_affix/$dataset
