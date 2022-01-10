@@ -40,9 +40,9 @@ test_sets="eval2000"
 
 diarizer_type=spectral  # must be one of (ahc, spectral, vbx)
 
-AMI_DIR=/mnt/speechdata/ami/amicorpus/amicorpus
-eval2000_dir=/mnt/speechdata/eval2000/hub5e_00
-eval2000_transcripts_dir=/mnt/speechdata/eval2000-transcripts/2000_hub5_eng_eval_tr
+AMI_DIR=/mnt/md0/data/ami/amicorpus/amicorpus
+eval2000_dir=/mnt/md0/data/eval2000/hub5e_00
+eval2000_transcripts_dir=/mnt/md0/data/eval2000-transcripts/2000_hub5_eng_eval_tr
 
 . utils/parse_options.sh
 
@@ -111,9 +111,9 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
 fi
 
 # stage 3
-# Feature extraction
+# Feature extraction only for train set
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
-  for dataset in train $test_sets; do
+  for dataset in train; do
     steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
     steps/compute_cmvn_stats.sh data/$dataset
     utils/fix_data_dir.sh data/$dataset

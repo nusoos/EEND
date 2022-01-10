@@ -31,9 +31,9 @@ swb2_phase1_train=/mnt/md0/data/ldc/LDC98S75
 data_root=/mnt/md0/data/ldc
 musan_root=/mnt/md0/data/musan
 
-AMI_DIR=/mnt/speechdata/data_from_ml0_data/ami/amicorpus/amicorpus
-eval2000_dir=/mnt/speechdata/data_from_ml0_data/eval2000/hub5e_00
-eval2000_transcripts_dir=/mnt/speechdata/data_from_ml0_data/eval2000-transcripts/2000_hub5_eng_eval_tr
+AMI_DIR=/mnt/md0/data/ami/amicorpus/amicorpus
+eval2000_dir=/mnt/md0/data/eval2000/hub5e_00
+eval2000_transcripts_dir=/mnt/md0/data/eval2000-transcripts/2000_hub5_eng_eval_tr
 # Modify simulated data storage area.
 # This script distributes simulated data under these directories
 simu_actual_dirs=(

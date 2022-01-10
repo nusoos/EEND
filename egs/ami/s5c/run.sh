@@ -36,7 +36,7 @@ diarizer_type=spectral  # must be one of (ahc, spectral, vbx)
 . utils/parse_options.sh
 
 # Path where AMI gets downloaded (or where locally available):
-AMI_DIR=$PWD/wav_db # Default,
+AMI_DIR=/mnt/md0/data/ami/amicorpus/amicorpus # Default,
 case $(hostname -d) in
   fit.vutbr.cz) AMI_DIR=/mnt/matylda5/iveselyk/KALDI_AMI_WAV ;; # BUT,
   clsp.jhu.edu) AMI_DIR=/export/corpora5/amicorpus ;; # JHU,
