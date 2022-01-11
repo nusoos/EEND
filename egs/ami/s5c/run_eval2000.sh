@@ -144,6 +144,7 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   if [ ! -d exp/xvector_nnet_1a ]; then
       wget http://kaldi-asr.org/models/12/0012_diarization_v1.tar.gz
       tar zxf 0012_diarization_v1.tar.gz
+      cp -R 0012_diarization_v1/exp/xvector_nnet_1a exp/
   fi
 
   utils/fix_data_dir.sh data/plda_train
