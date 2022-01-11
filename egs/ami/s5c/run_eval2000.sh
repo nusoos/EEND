@@ -139,6 +139,13 @@ fi
 # stage 5
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: Extracting x-vector for PLDA training data."
+    
+  # Download and unpack net for xvector extraction
+  if [ ! -d exp/xvector_nnet_1a ]; then
+      wget http://kaldi-asr.org/models/12/0012_diarization_v1.tar.gz
+      tar zxf 0012_diarization_v1.tar.gz
+  fi
+
   utils/fix_data_dir.sh data/plda_train
   # from kaldi/egs/callhome_diarization/v1/diarization/nnet3/xvector/
   local/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd" \
