@@ -140,7 +140,8 @@ fi
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: Extracting x-vector for PLDA training data."
   utils/fix_data_dir.sh data/plda_train
-  diarization/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd" \
+  # from kaldi/egs/callhome_diarization/v1/diarization/nnet3/xvector/
+  local/nnet3/xvector/extract_xvectors.sh --cmd "$train_cmd" \
     --nj $nj --window 3.0 --period 10.0 --min-segment 1.5 --apply-cmn false \
     --hard-min true $model_dir \
     data/plda_train $model_dir/xvectors_plda_train
