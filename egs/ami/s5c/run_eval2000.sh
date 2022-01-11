@@ -118,15 +118,15 @@ fi
 
 # stage 3
 # Feature extraction only for test set
-# if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
-#   echo "$0: Feature extraction for test set."
-#   for dataset in $test_sets; do
-#     steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
-#     steps/compute_cmvn_stats.sh data/$dataset
-#     utils/fix_data_dir.sh data/$dataset
-#   done
-# fi
-# ((stage+=1))
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
+  echo "$0: Feature extraction for test set."
+  for dataset in $test_sets; do
+    steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
+    steps/compute_cmvn_stats.sh data/$dataset
+    utils/fix_data_dir.sh data/$dataset
+  done
+fi
+((stage+=1))
 
 # stage 4
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
@@ -176,11 +176,13 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   cp $model_dir/xvectors_plda_train/plda $model_dir/
   cp $model_dir/xvectors_plda_train/transform.mat $model_dir/
   cp $model_dir/xvectors_plda_train/mean.vec $model_dir/
+  echo "$0: Training PLDA model done."
 fi
 ((stage+=1))
 
 # stage 7
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
+  echo "$0: Diarization started."
   for datadir in ${test_sets}; do
     ref_rttm=data/${datadir}/rttm.annotation
 
@@ -194,8 +196,9 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
     if [ $diarizer_type == "vbx" ]; then
       rttm_affix=".vb"
     fi
-    md-eval.pl -r $ref_rttm -s exp/${datadir}_diarization_${diarizer_type}/rttm${rttm_affix}
+    md-eval.pl -r $ref_rttm -s exp/${datadir}_diarization_${diarizer_type}/rttm${rttm_affix}    
   done
+  echo "$0: Diarization done."
 fi
 ((stage+=1))
 
