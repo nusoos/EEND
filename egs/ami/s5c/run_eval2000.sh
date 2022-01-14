@@ -181,6 +181,7 @@ fi
 ((stage+=1))
 
 # stage 7
+# Diarization
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: Diarization started."
   for datadir in ${test_sets}; do
@@ -208,6 +209,7 @@ fi
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: Training overlap detector."
   local/train_overlap_detector.sh --stage $overlap_stage --test-sets "$test_sets" $AMI_DIR
+  echo "$0: Training overlap detector done."
 fi
 ((stage+=1))
 
@@ -220,11 +222,12 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
       --output-scale "1 2 1" data/${dataset} \
       exp/overlap_$overlap_affix/tdnn_lstm_1a exp/overlap_$overlap_affix/$dataset
 
-    echo "$0: evaluating output.."
+    echo "$0: Evaluating output."
     steps/overlap/get_overlap_segments.py data/$dataset/rttm.annotation | grep "overlap" |\
       md-eval.pl -r - -s exp/overlap_$overlap_affix/$dataset/rttm_overlap |\
       awk 'or(/MISSED SPEAKER TIME/,/FALARM SPEAKER TIME/)'
   done
+  echo "$0: Overlap detection on ${dataset} done."
 fi
 ((stage+=1))
 
