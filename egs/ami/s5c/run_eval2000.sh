@@ -2,6 +2,9 @@
 # Copyright   2020   Johns Hopkins University (Author: Desh Raj)
 # Apache 2.0.
 #
+# Altered by Sebastian Klinger (Technische Hochschule Georg Simon Ohm)
+# to include eval2000 as evaluation set.
+#
 # This recipe performs diarization for the mix-headset data in the
 # AMI dataset. The x-vector extractor we use is trained on VoxCeleb v2 
 # corpus with simulated RIRs. We use oracle SAD in this recipe.
@@ -21,11 +24,11 @@ set -euo pipefail
 mfccdir=`pwd`/mfcc
 
 
-# only these stages
+# only these stages (e.g. stages="1 5 9 10")
 stages=""
-# if not: from this stage to end
+# if $stages are empty, than from stage to last stage
 from_stage=0
-last_stage=9
+last_stage=10
 
 overlap_stage=0
 diarizer_stage=0
@@ -34,9 +37,8 @@ decode_nj=15
 
 model_dir=exp/xvector_nnet_1a
 
-#train_set=train # ami
 train_set=train # ami
-test_sets="eval2000"
+test_sets=eval2000
 #test_sets="dev test" # ami
 
 diarizer_type=spectral  # must be one of (ahc, spectral, vbx)
@@ -214,20 +216,31 @@ fi
 ((stage+=1))
 
 # stage 9
+# Overlap Detection
 overlap_affix=1a
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   for dataset in $test_sets; do
     echo "$0: Performing overlap detection on ${dataset}."
     local/detect_overlaps.sh --convert_data_dir_to_whole true \
-      --output-scale "1 2 1" data/${dataset} \
-      exp/overlap_$overlap_affix/tdnn_lstm_1a exp/overlap_$overlap_affix/$dataset
+      --output-scale "1 2 1" \
+      data/${dataset} \
+      exp/overlap_$overlap_affix/tdnn_lstm_1a \
+      exp/overlap_$overlap_affix/$dataset
+  done
+  echo "$0: Overlap detection on ${dataset} done."
+fi
+((stage+=1))
 
-    echo "$0: Evaluating output."
+# stage 10
+# Evaluation
+if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
+  for dataset in $test_sets; do
+    echo "$0: Evaluating output for ${dataset}."
     steps/overlap/get_overlap_segments.py data/$dataset/rttm.annotation | grep "overlap" |\
       md-eval.pl -r - -s exp/overlap_$overlap_affix/$dataset/rttm_overlap |\
       awk 'or(/MISSED SPEAKER TIME/,/FALARM SPEAKER TIME/)'
   done
-  echo "$0: Overlap detection on ${dataset} done."
+  echo "$0: Evaluating output for ${dataset} done."
 fi
 ((stage+=1))
 
