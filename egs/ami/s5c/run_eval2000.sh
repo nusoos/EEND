@@ -103,6 +103,19 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   steps/segmentation/convert_utt2spk_and_segments_to_rttm.py \
     data/eval2000/utt2spk data/eval2000/segments \
     data/eval2000/rttm.annotation
+
+  # create rttm_with_overlap_annotation for eval2000
+  local/stm2rttm.pl stm -e rt05s > rttm_rt05s
+  awk '$1 ~ /SPEAKER/' \
+  | awk '{
+      $2=$2"-"$3; 
+      $3=1; 
+      $8=$2; 
+      $4=sprintf("%7.2f", $4); 
+      $5=sprintf("%7.2f", $5); 
+      print;
+    }' \
+  | sort > rttm_with_overlap.annotation
 fi
 ((stage+=1))
 
@@ -236,7 +249,7 @@ fi
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   for dataset in $test_sets; do
     echo "$0: Evaluating output for ${dataset}."
-    steps/overlap/get_overlap_segments.py data/$dataset/rttm.annotation | grep "overlap" |\
+    steps/overlap/get_overlap_segments.py data/$dataset/rttm_with_overlap.annotation | grep "overlap" |\
       md-eval.pl -r - -s exp/overlap_$overlap_affix/$dataset/rttm_overlap |\
       awk 'or(/MISSED SPEAKER TIME/,/FALARM SPEAKER TIME/)'
   done

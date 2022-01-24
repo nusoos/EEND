@@ -3,6 +3,9 @@
 # Copyright 2019-2020 Hitachi, Ltd. (author: Yusuke Fujita, Shota Horiguchi)
 # Licensed under the MIT license.
 #
+# Altered by Sebastian Klinger (Technische Hochschule Georg Simon Ohm)
+# to include ami as training and eval2000 as evaluation set.
+#
 stage=0
 
 # The datasets for training must be formatted as kaldi data directory.
