@@ -208,7 +208,7 @@ if [ $stage -le 7 ]; then
         echo " if you want to retry, please remove it."
         exit 1
     fi
-    for dset in "eval2000 test"; do
+    for dset in eval2000 test; do
         work=$infer_dir/$dset/.work
         mkdir -p $work
         $train_cmd $work/infer.log \
@@ -228,7 +228,7 @@ if [ $stage -le 8 ]; then
         echo " if you want to retry, please remove it."
         exit 1
     fi
-    for dset in "eval2000 test"; do
+    for dset in eval2000 test; do
         work=$scoring_dir/$dset/.work
         mkdir -p $work
         find $infer_dir/$dset -iname "*.h5" > $work/file_list_$dset
@@ -246,7 +246,7 @@ if [ $stage -le 8 ]; then
 fi
 
 if [ $stage -le 9 ]; then
-    for dset in eval2000; do
+    for dset in eval2000 test; do
         best_score.sh $scoring_dir/$dset
     done
 fi
