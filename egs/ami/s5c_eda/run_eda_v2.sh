@@ -13,8 +13,8 @@ stage=0
 # Including piped commands in wav.scp makes training very slow
 train_2spk_set=data/simu/data/swb_sre_tr_ns2_beta2_100000
 valid_2spk_set=data/simu/data/swb_sre_cv_ns2_beta2_500
-train_set=data/train
-valid_set=data/dev
+train_set=data/train_seg
+valid_set=data/dev_seg
 adapt_set=data/eval/eval2000_adapt
 # adapt_valid_set=data/eval/eval2000_eval
 adapt_valid_set=data/eval2000

@@ -215,12 +215,12 @@ if [ $stage -le 0 ]; then
     #     utils/fix_data_dir.sh data/simu_rirs_8k
     # fi
     
-    # Automatic segmentation using pretrained SAD model
-    #     it will take one day using 30 CPU jobs:
-    #     make_mfcc: 1 hour, compute_output: 18 hours, decode: 0.5 hours
+    # # Automatic segmentation using pretrained SAD model
+    # #     it will take one day using 30 CPU jobs:
+    # #     make_mfcc: 1 hour, compute_output: 18 hours, decode: 0.5 hours
     # sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
     # sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
-    # if ! validate_data_dir.sh --no-text $sad_work_dir/swb_sre_comb_seg; then
+    # if ! validate_data_dir.sh --no-text $sad_work_dir/train_seg; then
     #     if [ ! -d exp/segmentation_1a ]; then
     #         wget http://kaldi-asr.org/models/4/0004_tdnn_stats_asr_sad_1a.tar.gz
     #         tar zxf 0004_tdnn_stats_asr_sad_1a.tar.gz
@@ -229,54 +229,101 @@ if [ $stage -le 0 ]; then
     #         --nj $sad_num_jobs \
     #         --graph-opts "$sad_graph_opts" \
     #         --transform-probs-opts "$sad_priors_opts" $sad_opts \
-    #         data/swb_sre_comb $sad_nnet_dir mfcc_hires $sad_work_dir \
-    #         $sad_work_dir/swb_sre_comb || exit 1
+    #         data/train $sad_nnet_dir mfcc_hires $sad_work_dir \
+    #         $sad_work_dir/train || exit 1
+
+    #     steps/segmentation/detect_speech_activity.sh \
+    #         --nj $sad_num_jobs \
+    #         --graph-opts "$sad_graph_opts" \
+    #         --transform-probs-opts "$sad_priors_opts" $sad_opts \
+    #         data/dev $sad_nnet_dir mfcc_hires $sad_work_dir \
+    #         $sad_work_dir/dev || exit 1
     # fi
-    # # Extract >1.5 sec segments and split into train/valid sets
-    # if ! validate_data_dir.sh --no-text --no-feats data/swb_sre_cv; then
-    #     copy_data_dir.sh data/swb_sre_comb data/swb_sre_comb_seg
-    #     awk '$4-$3>1.5{print;}' $sad_work_dir/swb_sre_comb_seg/segments > data/swb_sre_comb_seg/segments
-    #     cp $sad_work_dir/swb_sre_comb_seg/{utt2spk,spk2utt} data/swb_sre_comb_seg
-    #     fix_data_dir.sh data/swb_sre_comb_seg
-    #     utils/subset_data_dir_tr_cv.sh data/swb_sre_comb_seg data/swb_sre_tr data/swb_sre_cv
+    # # # Extract >1.5 sec segments and split into train/valid sets
+    # if ! validate_data_dir.sh --no-text --no-feats data/train; then
+    #     copy_data_dir.sh data/train data/train_seg
+    #     awk '$4-$3>1.5{print;}' $sad_work_dir/train_seg/segments > data/train_seg/segments
+    #     cp $sad_work_dir/train_seg/{utt2spk,spk2utt} data/train_seg
+    #     fix_data_dir.sh data/train_seg
+    #     # utils/subset_data_dir_tr_cv.sh data/swb_sre_comb_seg data/swb_sre_tr data/swb_sre_cv
     # fi
+    
 fi
 
-# if [ $stage -le 1 ]; then
-#     echo "Starting SAD segmentation."
+if [ $stage -le 1 ]; then
+    echo "Starting SAD segmentation."
     
-#     # Automatic segmentation using pretrained SAD model
-#     #     it will take one day using 30 CPU jobs:
-#     #     make_mfcc: 1 hour, compute_output: 18 hours, decode: 0.5 hours
-#     sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
-#     sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
-#     if ! validate_data_dir.sh --no-text $sad_work_dir/train; then
-#         if [ ! -d exp/segmentation_1a ]; then
-#             wget http://kaldi-asr.org/models/4/0004_tdnn_stats_asr_sad_1a.tar.gz
-#             tar zxf 0004_tdnn_stats_asr_sad_1a.tar.gz
-#         fi
-#         steps/segmentation/detect_speech_activity.sh \
-#             --nj $sad_num_jobs \
-#             --graph-opts "$sad_graph_opts" \
-#             --transform-probs-opts "$sad_priors_opts" $sad_opts \
-#             data/ami/train $sad_nnet_dir mfcc_hires $sad_work_dir \
-#             $sad_work_dir/train || exit 1
-#     fi
-#     echo "Concluded SAD segmentation."
-# fi
+    # Automatic segmentation using pretrained SAD model
+    #     it will take one day using 30 CPU jobs:
+    #     make_mfcc: 1 hour, compute_output: 18 hours, decode: 0.5 hours
+    sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+    sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+    if ! validate_data_dir.sh --no-text $sad_work_dir/train_seg; then
+        if [ ! -d exp/segmentation_1a ]; then
+            wget http://kaldi-asr.org/models/4/0004_tdnn_stats_asr_sad_1a.tar.gz
+            tar zxf 0004_tdnn_stats_asr_sad_1a.tar.gz
+        fi
+        steps/segmentation/detect_speech_activity.sh \
+            --nj $sad_num_jobs \
+            --graph-opts "$sad_graph_opts" \
+            --transform-probs-opts "$sad_priors_opts" $sad_opts \
+            data/train $sad_nnet_dir mfcc_hires $sad_work_dir \
+            $sad_work_dir/train || exit 1
+    fi
+    echo "Concluded SAD segmentation."
+fi
 
 # Paper doesn't mention SAD for train data
-if [ $stage -le -1 ]; then #stage 2
+if [ $stage -le 2 ]; then #stage 2
     sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
     sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
     echo "Starting extracting 1.5s segments and splitting into train/valid sets."
     # Extract >1.5 sec segments and split into train/valid sets
     if ! validate_data_dir.sh --no-text --no-feats data/train_seg; then
-        copy_data_dir.sh data/ami/train data/train_seg
+        copy_data_dir.sh data/train data/train_seg
         awk '$4-$3>1.5{print;}' $sad_work_dir/train_seg/segments > data/train_seg/segments
         cp $sad_work_dir/train_seg/{utt2spk,spk2utt} data/train_seg
         fix_data_dir.sh data/train_seg
-        utils/subset_data_dir_tr_cv.sh data/train_seg data/train_tr data/train_cv
+        # utils/subset_data_dir_tr_cv.sh data/train_seg data/train_tr data/train_cv
+    fi
+    echo "Concluding extracting 1.5s segments and splitting into train/valid sets."
+fi
+
+if [ $stage -le 3 ]; then
+    echo "Starting SAD segmentation."
+    
+    # Automatic segmentation using pretrained SAD model
+    #     it will take one day using 30 CPU jobs:
+    #     make_mfcc: 1 hour, compute_output: 18 hours, decode: 0.5 hours
+    sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+    sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+    if ! validate_data_dir.sh --no-text $sad_work_dir/dev_seg; then
+        if [ ! -d exp/segmentation_1a ]; then
+            wget http://kaldi-asr.org/models/4/0004_tdnn_stats_asr_sad_1a.tar.gz
+            tar zxf 0004_tdnn_stats_asr_sad_1a.tar.gz
+        fi
+        steps/segmentation/detect_speech_activity.sh \
+            --nj $sad_num_jobs \
+            --graph-opts "$sad_graph_opts" \
+            --transform-probs-opts "$sad_priors_opts" $sad_opts \
+            data/dev $sad_nnet_dir mfcc_hires $sad_work_dir \
+            $sad_work_dir/dev || exit 1
+    fi
+    echo "Concluded SAD segmentation."
+fi
+
+# Paper doesn't mention SAD for train data
+if [ $stage -le 4 ]; then #stage 2
+    sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+    sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+    echo "Starting extracting 1.5s segments and splitting into train/valid sets."
+    # Extract >1.5 sec segments and split into train/valid sets
+    if ! validate_data_dir.sh --no-text --no-feats data/dev_seg; then
+        copy_data_dir.sh data/dev data/dev_seg
+        awk '$4-$3>1.5{print;}' $sad_work_dir/dev_seg/segments > data/dev_seg/segments
+        cp $sad_work_dir/dev_seg/{utt2spk,spk2utt} data/dev_seg
+        fix_data_dir.sh data/dev_seg
+        # utils/subset_data_dir_tr_cv.sh data/train_seg data/train_tr data/train_cv
     fi
     echo "Concluding extracting 1.5s segments and splitting into train/valid sets."
 fi
