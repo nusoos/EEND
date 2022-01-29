@@ -62,7 +62,7 @@ def write_wav(df_wav, output_path, bin_wav=True):
             key = key.split('.')[0]
             if bin_wav:
                 # f.write('%s sox %s -t wav - remix 1 | \n' % (key, file_path))
-                f.write('%s sox %s -r 8000 -t wav - remix 1 | \n' % (key, file_path)) #8k Hz to matchup with eval2000
+                f.write('%s sox %s -r 8000 -t wav - | \n' % (key, file_path)) #8k Hz to matchup with eval2000, no remix needed, headset-mix is mono
             else:
                 f.write('%s %s\n' % (key, file_path))
 
