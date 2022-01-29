@@ -70,12 +70,12 @@ rttm = load_rttm(args.rttm)
 def _min_max_ave(a):
     return [f(a) for f in [np.min, np.max, np.mean]]
 
-vafs = []
-uds = []
-ids = []
+vafs = [] # speech ratio
+uds = [] # mean utt duration
+ids = [] # mean intervals (time between two utts)
 reclens = []
-pres = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-den = 0
+pres = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) # amount of frames per simultaneous amount of speakers, index 0 = 0 speaker
+den = 0 # amount of frames
 recordings = np.unique(rttm['recid'])
 for recid in recordings:
     rec = rttm[rttm['recid'] == recid]
@@ -103,5 +103,5 @@ print(list(range(2, len(pres))))
 total_speaker = np.sum([n * pres[n] for n in range(len(pres))])
 total_overlap = np.sum([n * pres[n] for n in range(2, len(pres))])
 print(total_speaker, total_overlap, total_overlap/total_speaker)
-print("single-speaker overlap", pres[3]/np.sum(pres[2:]))
+print("single-speaker overlap", pres[2]/np.sum(pres[2:]))
 print(len(recordings), np.mean(reclens), np.mean(vafs), np.mean(uds), np.mean(ids), "overlap ratio:", np.sum(pres[2:])/np.sum(pres[1:]), "overlaps", ' '.join(str(x) for x in pres/den))

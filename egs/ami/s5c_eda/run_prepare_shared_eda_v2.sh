@@ -14,21 +14,6 @@
 
 stage=0
 
-# Modify corpus directories
-#  - callhome_dir
-#    CALLHOME (LDC2001S97)
-#  - swb2_phase1_train
-#    Switchboard-2 Phase 1 (LDC98S75)
-#  - data_root
-#    LDC99S79, LDC2002S06, LDC2001S13, LDC2004S07,
-#    LDC2006S44, LDC2011S01, LDC2011S04, LDC2011S09,
-#    LDC2011S10, LDC2012S01, LDC2011S05, LDC2011S08
-#  - musan_root
-#    MUSAN corpus (https://www.openslr.org/17/)
-# callhome_dir=/export/corpora/NIST/LDC2001S97
-# swb2_phase1_train=/export/corpora/LDC/LDC98S75
-# data_root=/export/corpora5/LDC
-# musan_root=/export/corpora/JHU/musan
 callhome_dir=/export/corpora/NIST/LDC2001S97
 swb2_phase1_train=/mnt/md0/data/ldc/LDC98S75
 data_root=/mnt/md0/data/ldc
@@ -136,6 +121,32 @@ if [ $stage -le 0 ]; then
         utils/fix_data_dir.sh $local_eval2000_dir
     fi
 
+    steps/segmentation/convert_utt2spk_and_segments_to_rttm.py \
+        data/eval2000/utt2spk data/eval2000/segments \
+        data/eval2000/rttm.original
+
+    # create rttm_with_overlap_annotation for eval2000
+    local/stm2rttm.pl stm -e rt05s > $local_eval2000_dir/rttm_rt05s
+    awk '$1 ~ /SPEAKER/' \
+        | awk '{ \
+        $2=$2"-"$3; \
+        $3=1; \
+        $8=$2; \
+        $4=sprintf("%7.2f", $4); \
+        $5=sprintf("%7.2f", $5); \
+        print; \
+        }' \
+        | sort > $local_eval2000_dir/rttm_with_overlap.annotation
+
+    # create rttm from PEM file, first two lines are comments
+    cp $eval2000_dir/english/hub5e_00.pem $local_eval2000_dir/hub5e_00.pem
+    tail -n +3 $local_eval2000_dir/hub5e_00.pem \
+        | awk '{ \
+        printf("%s %s %s %s %s %s %s %s %s\n", \
+        "SPEAKER", $1, "1", sprintf("%7.2f", $4), sprintf("%7.2f", $5), "<NA>", "<NA>", $1"-"$2, "<NA>"); \
+        }' \
+        | sort > $local_eval2000_dir/rttm
+
     # # Prepare a collection of NIST SRE and SWB data. This will be used to train,
     # if ! validate_data_dir.sh --no-text --no-feats data/swb_sre_comb; then
     #     local/make_sre.sh $data_root data
@@ -205,30 +216,31 @@ if [ $stage -le 0 ]; then
     # fi
 fi
 
-if [ $stage -le 1 ]; then
-    echo "Starting SAD segmentation."
+# if [ $stage -le 1 ]; then
+#     echo "Starting SAD segmentation."
     
-    # Automatic segmentation using pretrained SAD model
-    #     it will take one day using 30 CPU jobs:
-    #     make_mfcc: 1 hour, compute_output: 18 hours, decode: 0.5 hours
-    sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
-    sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
-    if ! validate_data_dir.sh --no-text $sad_work_dir/train; then
-        if [ ! -d exp/segmentation_1a ]; then
-            wget http://kaldi-asr.org/models/4/0004_tdnn_stats_asr_sad_1a.tar.gz
-            tar zxf 0004_tdnn_stats_asr_sad_1a.tar.gz
-        fi
-        steps/segmentation/detect_speech_activity.sh \
-            --nj $sad_num_jobs \
-            --graph-opts "$sad_graph_opts" \
-            --transform-probs-opts "$sad_priors_opts" $sad_opts \
-            data/ami/train $sad_nnet_dir mfcc_hires $sad_work_dir \
-            $sad_work_dir/train || exit 1
-    fi
-    echo "Concluded SAD segmentation."
-fi
+#     # Automatic segmentation using pretrained SAD model
+#     #     it will take one day using 30 CPU jobs:
+#     #     make_mfcc: 1 hour, compute_output: 18 hours, decode: 0.5 hours
+#     sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+#     sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
+#     if ! validate_data_dir.sh --no-text $sad_work_dir/train; then
+#         if [ ! -d exp/segmentation_1a ]; then
+#             wget http://kaldi-asr.org/models/4/0004_tdnn_stats_asr_sad_1a.tar.gz
+#             tar zxf 0004_tdnn_stats_asr_sad_1a.tar.gz
+#         fi
+#         steps/segmentation/detect_speech_activity.sh \
+#             --nj $sad_num_jobs \
+#             --graph-opts "$sad_graph_opts" \
+#             --transform-probs-opts "$sad_priors_opts" $sad_opts \
+#             data/ami/train $sad_nnet_dir mfcc_hires $sad_work_dir \
+#             $sad_work_dir/train || exit 1
+#     fi
+#     echo "Concluded SAD segmentation."
+# fi
 
-if [ $stage -le 2 ]; then
+# Paper doesn't mention SAD for train data
+if [ $stage -le -1 ]; then #stage 2
     sad_nnet_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
     sad_work_dir=exp/segmentation_1a/tdnn_stats_asr_sad_1a
     echo "Starting extracting 1.5s segments and splitting into train/valid sets."
@@ -305,7 +317,8 @@ fi
 #     done
 # fi
 
-if [ $stage -le 3 ]; then
+# No adaption will be performed, not enough data
+if [ $stage -le -3 ]; then
     echo "Starting subset of adapt and eval set."
     if ! validate_data_dir.sh --no-text --no-feats data/eval2000_eval \
         || ! validate_data_dir.sh --no-text --no-feats data/eval2000_adapt; then
@@ -315,7 +328,8 @@ if [ $stage -le 3 ]; then
     echo "Concluding subset of adapt and eval set."
 fi
 
-if [ $stage -le 4 ]; then
+# No adaption will be performed, not enough data
+if [ $stage -le -4 ]; then
     echo "Starting composing eval and adapt sets."
     eval_set=data/eval/eval2000_eval
     if ! validate_data_dir.sh --no-text --no-feats $eval_set; then

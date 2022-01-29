@@ -37,7 +37,9 @@ decode_nj=15
 
 model_dir=exp/xvector_nnet_1a
 
+ami_all="train dev test"
 train_set=train # ami
+dev_set=dev # ami
 test_sets=eval2000
 #test_sets="dev test" # ami
 
@@ -71,7 +73,7 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
     git clone https://github.com/BUTSpeechFIT/AMI-diarization-setup
   fi
 
-  for dataset in train; do
+  for dataset in $ami_all; do
     echo "$0: Preparing AMI $dataset set."
     mkdir -p data/$dataset
     # Prepare wav.scp and segments file from meeting lists and oracle SAD
@@ -105,7 +107,7 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
     data/eval2000/rttm.annotation
 
   # create rttm_with_overlap_annotation for eval2000
-  local/stm2rttm.pl stm -e rt05s > rttm_rt05s
+  local/stm2rttm.pl stm -e rt05s > $local_eval2000_dir/rttm_rt05s
   awk '$1 ~ /SPEAKER/' \
   | awk '{
       $2=$2"-"$3; 
@@ -115,15 +117,24 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
       $5=sprintf("%7.2f", $5); 
       print;
     }' \
-  | sort > rttm_with_overlap.annotation
+  | sort > $local_eval2000_dir/rttm_with_overlap.annotation
+
+  # create rttm from PEM file, first two lines are comments
+  cp $eval2000_dir/english/hub5e_00.pem $local_eval2000_dir/hub5e_00.pem
+  tail -n +3 $local_eval2000_dir/hub5e_00.pem 
+    | awk '{ 
+        printf("%s %s %s %s %s %s %s %s %s\n", 
+        "SPEAKER", $1, "1", sprintf("%7.2f", $4), sprintf("%7.2f", $5), "<NA>", "<NA>", $1"-"$2, "<NA>");
+      }' 
+    | sort > $local_eval2000_dir/rttm_from_pem.annotation 
 fi
 ((stage+=1))
 
 # stage 2
-# Feature extraction only for train set
+# Feature extraction for ami sets
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: Feature extraction for train set."
-  for dataset in $train_set; do
+  for dataset in $ami_all; do
     steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj $nj --cmd "$train_cmd" data/$dataset
     steps/compute_cmvn_stats.sh data/$dataset
     utils/fix_data_dir.sh data/$dataset
@@ -200,7 +211,8 @@ fi
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: Diarization started."
   for datadir in ${test_sets}; do
-    ref_rttm=data/${datadir}/rttm.annotation
+    ref_rttm=data/${datadir}/rttm.annotation # no overlap
+    # ref_rttm=data/${datadir}/rttm_from_pem.annotation # with overlap
 
     diarize_nj=$(wc -l < "data/$datadir/wav.scp")
     nj=$((decode_nj>diarize_nj ? diarize_nj : decode_nj))
@@ -223,7 +235,8 @@ fi
 # for an overlap detector.
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   echo "$0: Training overlap detector."
-  local/train_overlap_detector.sh --stage $overlap_stage --test-sets "$test_sets" $AMI_DIR
+  # local/train_overlap_detector.sh --stage $overlap_stage --test-sets "$test_sets" $AMI_DIR # would have used eval set
+  local/train_overlap_detector.sh --stage $overlap_stage --test-sets $dev_set $AMI_DIR
   echo "$0: Training overlap detector done."
 fi
 ((stage+=1))
@@ -249,7 +262,8 @@ fi
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   for dataset in $test_sets; do
     echo "$0: Evaluating output for ${dataset}."
-    steps/overlap/get_overlap_segments.py data/$dataset/rttm_with_overlap.annotation | grep "overlap" |\
+    # steps/overlap/get_overlap_segments.py data/$dataset/rttm_from_pem.annotation | grep "overlap" |\
+    steps/overlap/get_overlap_segments.py data/$dataset/rttm.annotation | grep "overlap" |\
       md-eval.pl -r - -s exp/overlap_$overlap_affix/$dataset/rttm_overlap |\
       awk 'or(/MISSED SPEAKER TIME/,/FALARM SPEAKER TIME/)'
   done
