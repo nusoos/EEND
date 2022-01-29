@@ -152,8 +152,8 @@ if [ $stage -le 0 ]; then
         data/eval2000/rttm.original
 
     # create rttm_with_overlap_annotation for eval2000
-    local/stm2rttm.pl stm -e rt05s > $local_eval2000_dir/rttm_rt05s
-    awk '$1 ~ /SPEAKER/' | awk '{ $2=$2"-"$3; $3=1; $8=$2; $4=sprintf("%7.2f", $4); $5=sprintf("%7.2f", $5); print; }' | sort > $local_eval2000_dir/rttm_with_overlap.annotation
+    local/stm2rttm.pl data/eval2000/stm -e rt05s > $local_eval2000_dir/rttm_rt05s
+    awk '$1 ~ /SPEAKER/' $local_eval2000_dir/rttm_rt05s | awk '{ $2=$2"-"$3; $3=1; $8=$2; $4=sprintf("%7.2f", $4); $5=sprintf("%7.2f", $5); print; }' | sort > $local_eval2000_dir/rttm_with_overlap.annotation
 
     # create rttm from PEM file, first two lines are comments
     cp $eval2000_dir/english/hub5e_00.pem $local_eval2000_dir/hub5e_00.pem
