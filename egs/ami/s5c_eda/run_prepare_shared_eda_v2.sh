@@ -51,7 +51,7 @@ test_sets="dev eval"
 
 . path.sh
 . cmd.sh
-. parse_options.sh || exit
+. utils/parse_options.sh || exit
 
 if [ $stage -le 0 ]; then
     echo "prepare kaldi-style datasets"
