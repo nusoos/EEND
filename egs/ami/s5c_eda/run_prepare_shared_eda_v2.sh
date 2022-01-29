@@ -48,6 +48,7 @@ simu_opts_max_utts=20
 
 train_set=train
 test_sets="dev test"
+ami_all="train dev test"
 
 . path.sh
 . cmd.sh
@@ -56,35 +57,56 @@ test_sets="dev test"
 if [ $stage -le 0 ]; then
     echo "prepare kaldi-style datasets"
 
-    # From ami/s5c/run_prepare_shared.sh    
-    # Download of AMI annotations, pre-processing
-    run_prepare_shared.sh
+    # # From ami/s5c/run_prepare_shared.sh    
+    # # Download of AMI annotations, pre-processing
+    # run_prepare_shared.sh
 
-    if ! [ -d data/local/annotations ]; then
-        local/ami_text_prep.sh data/local/downloads
+    # if ! [ -d data/local/annotations ]; then
+    #     local/ami_text_prep.sh data/local/downloads
+    # fi
+
+    # # From ami/s5c/run.sh
+    # # Prepare data directories.
+    # ami_data_dir=data/ami
+    # for dataset in train $test_sets; do
+    #     echo "$0: preparing $dataset set.."
+    #     mkdir -p $ami_data_dir/$dataset
+    #     local/prepare_data.py data/local/annotations/${dataset}.txt \
+    #         $AMI_DIR $ami_data_dir/$dataset
+    #     local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true $ami_data_dir/$dataset/rttm.annotation \
+    #         <(awk '{print $2" "$2" "$3}' $ami_data_dir/$dataset/rttm.annotation |sort -u) \
+    #     $ami_data_dir/$dataset/utt2spk $ami_data_dir/$dataset/segments
+
+    #     # For the test sets we create dummy segments and utt2spk files using oracle speech marks
+    #     if ! [ $dataset == "train" ]; then
+    #         local/get_all_segments.py $ami_data_dir/$dataset/rttm.annotation > $ami_data_dir/$dataset/segments
+    #         awk '{print $1,$2}' $ami_data_dir/$dataset/segments > $ami_data_dir/$dataset/utt2spk
+    #     fi
+
+    #     utils/utt2spk_to_spk2utt.pl $ami_data_dir/$dataset/utt2spk > $ami_data_dir/$dataset/spk2utt
+    #     utils/data/get_reco2dur.sh $ami_data_dir/$dataset
+    #     utils/fix_data_dir.sh $ami_data_dir/$dataset
+    # done
+
+    # Download the data split and references from BUT's AMI setup
+    if ! [ -d AMI-diarization-setup ]; then
+        git clone https://github.com/BUTSpeechFIT/AMI-diarization-setup
     fi
 
-    # From ami/s5c/run.sh
-    # Prepare data directories.
-    ami_data_dir=data/ami
-    for dataset in train $test_sets; do
-        echo "$0: preparing $dataset set.."
-        mkdir -p $ami_data_dir/$dataset
-        local/prepare_data.py data/local/annotations/${dataset}.txt \
-            $AMI_DIR $ami_data_dir/$dataset
-        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true $ami_data_dir/$dataset/rttm.annotation \
-            <(awk '{print $2" "$2" "$3}' $ami_data_dir/$dataset/rttm.annotation |sort -u) \
-        $ami_data_dir/$dataset/utt2spk $ami_data_dir/$dataset/segments
+    for dataset in $ami_all; do
+        echo "$0: Preparing AMI $dataset set."
+        mkdir -p data/$dataset
+        # Prepare wav.scp and segments file from meeting lists and oracle SAD
+        # labels, and concatenate all reference RTTMs into one file.
+        local/prepare_data.py --sad-labels-dir AMI-diarization-setup/only_words/labs/${dataset} \
+        AMI-diarization-setup/lists/${dataset}.meetings.txt \
+        $AMI_DIR data/$dataset
+        cat AMI-diarization-setup/only_words/rttms/${dataset}/*.rttm \
+        > data/${dataset}/rttm.annotation
 
-        # For the test sets we create dummy segments and utt2spk files using oracle speech marks
-        if ! [ $dataset == "train" ]; then
-            local/get_all_segments.py $ami_data_dir/$dataset/rttm.annotation > $ami_data_dir/$dataset/segments
-            awk '{print $1,$2}' $ami_data_dir/$dataset/segments > $ami_data_dir/$dataset/utt2spk
-        fi
-
-        utils/utt2spk_to_spk2utt.pl $ami_data_dir/$dataset/utt2spk > $ami_data_dir/$dataset/spk2utt
-        utils/data/get_reco2dur.sh $ami_data_dir/$dataset
-        utils/fix_data_dir.sh $ami_data_dir/$dataset
+        awk '{print $1,$2}' data/$dataset/segments > data/$dataset/utt2spk
+        utils/utt2spk_to_spk2utt.pl data/$dataset/utt2spk > data/$dataset/spk2utt
+        utils/fix_data_dir.sh data/$dataset
     done
 
     # # Prepare CALLHOME dataset. This will be used to evaluation.
