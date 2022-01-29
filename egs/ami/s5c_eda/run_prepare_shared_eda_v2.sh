@@ -105,8 +105,8 @@ if [ $stage -le 0 ]; then
             > data/${dataset}/rttm.annotation
 
         local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true $ami_data_dir/$dataset/rttm.annotation \
-            <(awk '{print $2" "$2" "$3}' $ami_data_dir/$dataset/rttm.annotation |sort -u) \
-            $ami_data_dir/$dataset/utt2spk $ami_data_dir/$dataset/segments
+            <(awk '{print $2" "$2" "$3}' data/$dataset/rttm.annotation |sort -u) \
+            data/$dataset/utt2spk data/$dataset/segments
 
         awk '{print $1,$2}' data/$dataset/segments > data/$dataset/utt2spk
         utils/utt2spk_to_spk2utt.pl data/$dataset/utt2spk > data/$dataset/spk2utt
