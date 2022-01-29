@@ -99,10 +99,14 @@ if [ $stage -le 0 ]; then
         # Prepare wav.scp and segments file from meeting lists and oracle SAD
         # labels, and concatenate all reference RTTMs into one file.
         local/prepare_data.py --sad-labels-dir AMI-diarization-setup/only_words/labs/${dataset} \
-        AMI-diarization-setup/lists/${dataset}.meetings.txt \
-        $AMI_DIR data/$dataset
+            AMI-diarization-setup/lists/${dataset}.meetings.txt \
+            $AMI_DIR data/$dataset
         cat AMI-diarization-setup/only_words/rttms/${dataset}/*.rttm \
-        > data/${dataset}/rttm.annotation
+            > data/${dataset}/rttm.annotation
+
+        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true $ami_data_dir/$dataset/rttm.annotation \
+            <(awk '{print $2" "$2" "$3}' $ami_data_dir/$dataset/rttm.annotation |sort -u) \
+            $ami_data_dir/$dataset/utt2spk $ami_data_dir/$dataset/segments
 
         awk '{print $1,$2}' data/$dataset/segments > data/$dataset/utt2spk
         utils/utt2spk_to_spk2utt.pl data/$dataset/utt2spk > data/$dataset/spk2utt
