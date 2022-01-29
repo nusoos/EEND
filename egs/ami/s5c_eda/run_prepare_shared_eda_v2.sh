@@ -102,10 +102,10 @@ if [ $stage -le 0 ]; then
             AMI-diarization-setup/lists/${dataset}.meetings.txt \
             $AMI_DIR data/$dataset
         cat AMI-diarization-setup/only_words/rttms/${dataset}/*.rttm \
-            > data/${dataset}/rttm.annotation
+            > data/${dataset}/rttm
 
-        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true $ami_data_dir/$dataset/rttm.annotation \
-            <(awk '{print $2" "$2" "$3}' data/$dataset/rttm.annotation |sort -u) \
+        local/convert_rttm_to_utt2spk_and_segments.py --append-reco-id-to-spkr=true data/$dataset/rttm \
+            <(awk '{print $2" "$2" "$3}' data/$dataset/rttm |sort -u) \
             data/$dataset/utt2spk data/$dataset/segments
 
         awk '{print $1,$2}' data/$dataset/segments > data/$dataset/utt2spk
