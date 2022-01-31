@@ -160,7 +160,7 @@ if [ $stage -le 0 ]; then
     tail -n +3 $local_eval2000_dir/hub5e_00.pem \
         | awk '{ 
         printf("%s %s %s %s %s %s %s %s %s\n", 
-        "SPEAKER", $1, "1", sprintf("%7.2f", $4), sprintf("%7.2f", $5), "<NA>", "<NA>", $1"-"$2, "<NA>"); 
+        "SPEAKER", $1, "1", sprintf("%7.2f", $4), sprintf("%7.2f", $4-$5), "<NA>", "<NA>", $1"-"$2, "<NA>"); 
         }' \
         | sort > $local_eval2000_dir/rttm
 

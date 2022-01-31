@@ -125,7 +125,7 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   tail -n +3 $local_eval2000_dir/hub5e_00.pem \
     | awk '{ 
         printf("%s %s %s %s %s %s %s %s %s\n", 
-        "SPEAKER", $1, "1", sprintf("%7.2f", $4), sprintf("%7.2f", $5), "<NA>", "<NA>", $1"-"$2, "<NA>");
+        "SPEAKER", $1"-"$2, "1", sprintf("%7.2f", $4), sprintf("%7.2f", $5-$4), "<NA>", "<NA>", $1"-"$2, "<NA>");
       }' \
     | sort > $local_eval2000_dir/rttm_from_pem.annotation 
 fi
@@ -263,9 +263,9 @@ fi
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   for dataset in $test_sets; do
     echo "$0: Evaluating output for ${dataset}."
-    # steps/overlap/get_overlap_segments.py data/$dataset/rttm_from_pem.annotation | grep "overlap" |\
-    steps/overlap/get_overlap_segments.py data/$dataset/rttm.annotation | grep "overlap" |\
-      md-eval.pl -r - -s exp/overlap_$overlap_affix/$dataset/rttm_overlap |\
+    steps/overlap/get_overlap_segments.py data/$dataset/rttm_from_pem.annotation | grep "overlap" |\
+    # steps/overlap/get_overlap_segments.py data/$dataset/rttm.annotation | grep "overlap" |\
+      md-eval.pl -r - -s exp/overlap_$overlap_affix/$dataset/rttm |\
       awk 'or(/MISSED SPEAKER TIME/,/FALARM SPEAKER TIME/)'
   done
   echo "$0: Evaluating output for ${dataset} done."
