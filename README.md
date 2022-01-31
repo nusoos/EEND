@@ -1,3 +1,6 @@
+# Klinger-Fork
+Code basis was altered to work with AMI dataset as training and eval2000 dataset as evaluation.
+
 # EEND (End-to-End Neural Diarization)
 
 EEND (End-to-End Neural Diarization) is a neural-network-based speaker diarization method.
