@@ -126,7 +126,7 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
     | awk '{ 
         printf("%s %s %s %s %s %s %s %s %s\n", 
         "SPEAKER", $1, "1", sprintf("%7.2f", $4), sprintf("%7.2f", $5), "<NA>", "<NA>", $1"-"$2, "<NA>");
-      }' 
+      }' \
     | sort > $local_eval2000_dir/rttm_from_pem.annotation 
 fi
 ((stage+=1))

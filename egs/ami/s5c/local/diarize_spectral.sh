@@ -74,7 +74,7 @@ fi
 # Perform PLDA scoring
 if [ $stage -le 5 ]; then
   echo "$0: performing PLDA scoring between all pairs of x-vectors"
-  diarization/score_plda.sh --cmd "$cmd" \
+  local/score_plda.sh --cmd "$cmd" \
     --nj $nj $model_dir \
     $out_dir/xvectors_${name} \
     $out_dir/xvectors_${name}/plda_scores

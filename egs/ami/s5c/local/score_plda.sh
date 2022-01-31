@@ -40,10 +40,10 @@ dir=$3
 
 mkdir -p $dir/tmp
 
-for f in $ivecdir/ivector.scp $ivecdir/spk2utt $ivecdir/utt2spk $ivecdir/segments $pldadir/plda $pldadir/mean.vec $pldadir/transform.mat; do
+for f in $ivecdir/xvector.scp $ivecdir/spk2utt $ivecdir/utt2spk $ivecdir/segments $pldadir/plda $pldadir/mean.vec $pldadir/transform.mat; do
   [ ! -f $f ] && echo "No such file $f" && exit 1;
 done
-cp $ivecdir/ivector.scp $dir/tmp/feats.scp
+cp $ivecdir/xvector.scp $dir/tmp/feats.scp
 cp $ivecdir/spk2utt $dir/tmp/
 cp $ivecdir/utt2spk $dir/tmp/
 cp $ivecdir/segments $dir/tmp/
@@ -59,11 +59,11 @@ utils/split_data.sh $dir/tmp $nj || exit 1;
 # Set various variables.
 mkdir -p $dir/log
 
-feats="ark:ivector-subtract-global-mean $pldadir/mean.vec scp:$sdata/JOB/feats.scp ark:- | transform-vec $pldadir/transform.mat ark:- ark:- | ivector-normalize-length ark:- ark:- |"
+feats="ark:xvector-subtract-global-mean $pldadir/mean.vec scp:$sdata/JOB/feats.scp ark:- | transform-vec $pldadir/transform.mat ark:- ark:- | xvector-normalize-length ark:- ark:- |"
 if [ $stage -le 0 ]; then
-  echo "$0: scoring iVectors"
+  echo "$0: scoring xVectors"
   $cmd JOB=1:$nj $dir/log/plda_scoring.JOB.log \
-    ivector-plda-scoring-dense --target-energy=$target_energy $pldadir/plda \
+    xvector-plda-scoring-dense --target-energy=$target_energy $pldadir/plda \
       ark:$sdata/JOB/spk2utt "$feats" ark,scp:$dir/scores.JOB.ark,$dir/scores.JOB.scp || exit 1;
 fi
 
