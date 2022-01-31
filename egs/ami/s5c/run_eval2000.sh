@@ -83,6 +83,7 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
       $AMI_DIR data/$dataset
     cat AMI-diarization-setup/only_words/rttms/${dataset}/*.rttm \
       > data/${dataset}/rttm.annotation
+    
 
     awk '{print $1,$2}' data/$dataset/segments > data/$dataset/utt2spk
     utils/utt2spk_to_spk2utt.pl data/$dataset/utt2spk > data/$dataset/spk2utt
@@ -121,7 +122,7 @@ if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
 
   # create rttm from PEM file, first two lines are comments
   cp $eval2000_dir/english/hub5e_00.pem $local_eval2000_dir/hub5e_00.pem
-  tail -n +3 $local_eval2000_dir/hub5e_00.pem 
+  tail -n +3 $local_eval2000_dir/hub5e_00.pem \
     | awk '{ 
         printf("%s %s %s %s %s %s %s %s %s\n", 
         "SPEAKER", $1, "1", sprintf("%7.2f", $4), sprintf("%7.2f", $5), "<NA>", "<NA>", $1"-"$2, "<NA>");

@@ -275,6 +275,11 @@ if [ $stage -le 2 ]; then #stage 2
         awk '$4-$3>1.5{print;}' $sad_work_dir/train_seg/segments > data/train_seg/segments
         cp $sad_work_dir/train_seg/{utt2spk,spk2utt} data/train_seg
         fix_data_dir.sh data/train_seg
+        steps/segmentation/convert_utt2spk_and_segments_to_rttm.py \
+            data/train_seg/utt2spk data/train_seg/segments \
+            data/train_seg/rttm
+        utils/data/get_reco2dur.sh data/train_seg
+        cp $sad_work_dir/train_seg/feats.scp data/train_seg/
         # utils/subset_data_dir_tr_cv.sh data/train_seg data/train_tr data/train_cv
     fi
     echo "Concluding extracting 1.5s segments and splitting into train/valid sets."
@@ -315,6 +320,11 @@ if [ $stage -le 4 ]; then #stage 2
         cp $sad_work_dir/dev_seg/{utt2spk,spk2utt} data/dev_seg
         fix_data_dir.sh data/dev_seg
         # utils/subset_data_dir_tr_cv.sh data/train_seg data/train_tr data/train_cv
+        steps/segmentation/convert_utt2spk_and_segments_to_rttm.py \
+                    data/dev_seg/utt2spk data/dev_seg/segments \
+                    data/dev_seg/rttm
+        utils/data/get_reco2dur.sh data/dev_seg
+        cp $sad_work_dir/dev_seg/feats.scp data/dev_seg/
     fi
     echo "Concluding extracting 1.5s segments and splitting into train/valid sets."
 fi
@@ -445,3 +455,5 @@ fi
 #         utils/data/get_reco2dur.sh $adapt_set
 #     fi
 # fi
+
+echo "$0: Done."

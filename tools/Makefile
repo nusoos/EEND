@@ -34,7 +34,7 @@ miniconda3/envs/eend/bin: miniconda3
 	miniconda3/bin/conda update -y conda
 	miniconda3/bin/conda env create -f environment.yml
 	# miniconda3/envs/eend/bin/pip install cupy-cuda$(subst .,,$(CUDA_VERSION))==6.2.0 chainer==6.2.0
-	miniconda3/envs/eend/bin/pip install cupy chainer
+	miniconda3/envs/eend/bin/pip install cupy chainer==6.2.0
 update:
 	miniconda3/bin/conda env update -f environment.yml
 

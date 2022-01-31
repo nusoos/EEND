@@ -70,3 +70,20 @@ if [ $stage -le 4 ]; then
     $out_dir/xvectors_${name}/cossim_scores $out_dir
   echo "$0: wrote RTTM to output directory ${out_dir}"
 fi
+
+# Perform PLDA scoring
+if [ $stage -le 5 ]; then
+  echo "$0: performing PLDA scoring between all pairs of x-vectors"
+  diarization/score_plda.sh --cmd "$cmd" \
+    --nj $nj $model_dir \
+    $out_dir/xvectors_${name} \
+    $out_dir/xvectors_${name}/plda_scores
+fi
+
+if [ $stage -le 6 ]; then
+  echo "$0: performing spectral clustering using PLDA scores"
+  diarization/scluster.sh --cmd "$cmd" --nj $nj \
+    --rttm-channel 1 --rttm-affix "$rttm_affix" \
+    $out_dir/xvectors_${name}/plda_scores $out_dir
+  echo "$0: wrote RTTM to output directory ${out_dir}"
+fi
