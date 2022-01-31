@@ -63,7 +63,7 @@ feats="ark:ivector-subtract-global-mean $pldadir/mean.vec scp:$sdata/JOB/feats.s
 if [ $stage -le 0 ]; then
   echo "$0: scoring xVectors"
   $cmd JOB=1:$nj $dir/log/plda_scoring.JOB.log \
-    xvector-plda-scoring-dense --target-energy=$target_energy $pldadir/plda \
+    ivector-plda-scoring-dense --target-energy=$target_energy $pldadir/plda \
       ark:$sdata/JOB/spk2utt "$feats" ark,scp:$dir/scores.JOB.ark,$dir/scores.JOB.scp || exit 1;
 fi
 
