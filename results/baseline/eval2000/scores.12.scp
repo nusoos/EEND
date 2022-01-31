@@ -1,0 +1,6 @@
+sw_4580-A exp/eval2000_diarization_spectral/xvectors_eval2000/plda_scores/scores.12.ark:10
+sw_4580-B exp/eval2000_diarization_spectral/xvectors_eval2000/plda_scores/scores.12.ark:240135
+sw_4601-A exp/eval2000_diarization_spectral/xvectors_eval2000/plda_scores/scores.12.ark:351716
+sw_4601-B exp/eval2000_diarization_spectral/xvectors_eval2000/plda_scores/scores.12.ark:611841
+sw_4604-A exp/eval2000_diarization_spectral/xvectors_eval2000/plda_scores/scores.12.ark:747290
+sw_4604-B exp/eval2000_diarization_spectral/xvectors_eval2000/plda_scores/scores.12.ark:968215

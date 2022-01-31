@@ -1,0 +1,73 @@
+./run_eval2000.sh: Diarization started.
+local/diarize_spectral.sh --nj 15 --cmd run.pl --mem 64G --stage 5 exp/xvector_nnet_1a data/eval2000 exp/eval2000_diarization_spectral
+local/diarize_spectral.sh: performing PLDA scoring between all pairs of x-vectors
+local/score_plda.sh --cmd run.pl --mem 64G --nj 15 exp/xvector_nnet_1a exp/eval2000_diarization_spectral/xvectors_eval2000 exp/eval2000_diarization_spectral/xvectors_eval2000/plda_scores
+local/score_plda.sh: scoring xVectors
+local/score_plda.sh: combining PLDA scores across jobs
+local/diarize_spectral.sh: performing spectral clustering using PLDA scores
+diarization/scluster.sh --cmd run.pl --mem 64G --nj 15 --rttm-channel 1 --rttm-affix  exp/eval2000_diarization_spectral/xvectors_eval2000/plda_scores exp/eval2000_diarization_spectral
+diarization/scluster.sh: clustering scores
+diarization/scluster.sh: combining labels
+diarization/scluster.sh: computing RTTM
+local/diarize_spectral.sh: wrote RTTM to output directory exp/eval2000_diarization_spectral
+command line (run on 2022 Jan 31 at 01:41:46) Version: 22  /mnt/md0/user/klingerse62324/EEND/egs/ami/s5c/../../../tools/kaldi/tools/sctk/bin/md-eval.pl -r data/eval2000/rttm.annotation -s exp/eval2000_diarization_spectral/rttm
+
+Time-based metadata alignment
+
+Metadata evaluation parameters:
+    time-optimized metadata mapping
+        max gap between matching metadata events = 1 sec
+        max extent to match for SU's = 0.5 sec
+
+Speaker Diarization evaluation parameters:
+    The max time to extend no-score zones for NON-LEX exclusions is 0.5 sec
+    The no-score collar at SPEAKER boundaries is 0 sec
+
+Exclusion zones for evaluation and scoring are:
+                             -----MetaData-----        -----SpkrData-----
+     exclusion set name:     DEFAULT    DEFAULT        DEFAULT    DEFAULT
+     token type/subtype      no-eval   no-score        no-eval   no-score
+             (UEM)              X                         X
+         LEXEME/un-lex                    X                          
+        NON-LEX/breath                                              X
+        NON-LEX/cough                                               X
+        NON-LEX/laugh                                               X
+        NON-LEX/lipsmack                                            X
+        NON-LEX/other                                               X
+        NON-LEX/sneeze                                              X
+        NOSCORE/<na>            X         X               X         X
+ NO_RT_METADATA/<na>            X                                    
+             SU/unannotated               X                          
+
+*** Performance analysis for Speaker Diarization for ALL ***
+
+    EVAL TIME =  23537.85 secs
+  EVAL SPEECH =  12970.17 secs ( 55.1 percent of evaluated time)
+  SCORED TIME =  23537.85 secs (100.0 percent of evaluated time)
+SCORED SPEECH =  12970.17 secs ( 55.1 percent of scored time)
+   EVAL WORDS =      0        
+ SCORED WORDS =      0         (100.0 percent of evaluated words)
+---------------------------------------------
+MISSED SPEECH =      0.00 secs (  0.0 percent of scored time)
+FALARM SPEECH =      0.00 secs (  0.0 percent of scored time)
+ MISSED WORDS =      0         (100.0 percent of scored words)
+---------------------------------------------
+SCORED SPEAKER TIME =  12970.17 secs (100.0 percent of scored speech)
+MISSED SPEAKER TIME =      0.00 secs (  0.0 percent of scored speaker time)
+FALARM SPEAKER TIME =      0.00 secs (  0.0 percent of scored speaker time)
+ SPEAKER ERROR TIME =   4385.42 secs ( 33.8 percent of scored speaker time)
+SPEAKER ERROR WORDS =      0         (100.0 percent of scored speaker words)
+---------------------------------------------
+ OVERALL SPEAKER DIARIZATION ERROR = 33.81 percent of scored speaker time  `(ALL)
+---------------------------------------------
+ Speaker type confusion matrix -- speaker weighted
+  REF\SYS (count)      unknown               MISS              
+unknown                  80 / 100.0%          0 /   0.0%
+  FALSE ALARM           302 / 377.5%
+---------------------------------------------
+ Speaker type confusion matrix -- time weighted
+  REF\SYS (seconds)    unknown               MISS              
+unknown            12970.17 / 100.0%       0.00 /   0.0%
+  FALSE ALARM          0.00 /   0.0%
+---------------------------------------------
+./run_eval2000.sh: Diarization done.

@@ -1,0 +1,96 @@
+prepare kaldi-style datasets
+./run_prepare_shared_eda_v2.sh: Preparing AMI train set.
+get file list
+read audios
+make wav.scp
+make segments
+fix_data_dir.sh: kept all 66816 utterances.
+fix_data_dir.sh: old files are kept in data/train/.backup
+./run_prepare_shared_eda_v2.sh: Preparing AMI dev set.
+get file list
+read audios
+make wav.scp
+make segments
+fix_data_dir.sh: kept all 8664 utterances.
+fix_data_dir.sh: old files are kept in data/dev/.backup
+./run_prepare_shared_eda_v2.sh: Preparing AMI test set.
+get file list
+read audios
+make wav.scp
+make segments
+fix_data_dir.sh: kept all 7493 utterances.
+fix_data_dir.sh: old files are kept in data/test/.backup
+/mnt/md0/user/klingerse62324/EEND/egs/ami/s5c_eda/utils/validate_data_dir.sh: Successfully validated data-directory data/eval2000
+Starting SAD segmentation.
+/mnt/md0/user/klingerse62324/EEND/egs/ami/s5c_eda/utils/validate_data_dir.sh: no such directory exp/segmentation_1a/tdnn_stats_asr_sad_1a/train_seg
+--nj 50 --graph-opts --min-silence-duration=0.03 --min-speech-duration=0.3 --max-speech-duration=10.0 --transform-probs-opts --sil-scale=0.1 --extra-left-context 79 --extra-right-context 21 --frames-per-chunk 150 --extra-left-context-initial 0 --extra-right-context-final 0 --acwt 0.3 data/train exp/segmentation_1a/tdnn_stats_asr_sad_1a mfcc_hires exp/segmentation_1a/tdnn_stats_asr_sad_1a exp/segmentation_1a/tdnn_stats_asr_sad_1a/train
+fix_data_dir.sh: kept all 136 utterances.
+fix_data_dir.sh: old files are kept in data/train_whole_hires/.backup
+fix_data_dir.sh: kept all 136 utterances.
+fix_data_dir.sh: old files are kept in data/train_whole_hires/.backup
+steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj 50 --cmd run.pl --write-utt2num-frames true data/train_whole_hires exp/make_hires/train mfcc_hires
+utils/validate_data_dir.sh: Successfully validated data-directory data/train_whole_hires
+steps/make_mfcc.sh: [info]: no segments file exists: assuming wav.scp indexed by utterance.
+steps/make_mfcc.sh: Succeeded creating MFCC features for train_whole_hires
+steps/compute_cmvn_stats.sh data/train_whole_hires exp/make_hires/train mfcc_hires
+Succeeded creating CMVN stats for train_whole_hires
+fix_data_dir.sh: kept all 136 utterances.
+fix_data_dir.sh: old files are kept in data/train_whole_hires/.backup
+steps/nnet3/compute_output.sh --nj 50 --cmd run.pl --iter final --extra-left-context 79 --extra-right-context 21 --extra-left-context-initial 0 --extra-right-context-final 0 --frames-per-chunk 150 --apply-exp true --frame-subsampling-factor 1 data/train_whole_hires exp/segmentation_1a/tdnn_stats_asr_sad_1a exp/segmentation_1a/tdnn_stats_asr_sad_1a/sad_train_whole
+utils/data/get_utt2dur.sh: data/train_whole_hires/utt2dur already exists with the expected length.  We won't recompute it.
+utils/data/get_utt2dur.sh: data/train_whole_hires/utt2dur already exists with the expected length.  We won't recompute it.
+utils/data/subsegment_data_dir.sh: note: frame shift is 0.01 [affects feats.scp]
+utils/data/get_utt2num_frames.sh: data/train_whole_hires/utt2num_frames already present!
+Fixed row_end for EN2003a-0223927-0224027 from 224026 to 224026-1
+Fixed row_end for EN2004a-0344476-0344567 from 344567 to 344565-1
+Fixed row_end for ES2006c-0218110-0218168 from 218168 to 218167-1
+Fixed row_end for ES2006d-0196531-0196744 from 196743 to 196743-1
+Fixed row_end for ES2007a-0120563-0120630 from 120629 to 120628-1
+Fixed row_end for ES2007c-0237632-0237740 from 237740 to 237739-1
+Fixed row_end for ES2010b-0175121-0175197 from 175197 to 175196-1
+Fixed row_end for ES2010d-0096857-0096922 from 96921 to 96920-1
+Fixed row_end for ES2014c-0227242-0227352 from 227352 to 227351-1
+Fixed row_end for ES2014d-0291041-0291136 from 291135 to 291134-1
+Fixed row_end for IN1001-0346170-0346375 from 346374 to 346373-1
+Fixed row_end for IN1005-0279769-0279883 from 279882 to 279881-1
+Fixed row_end for IN1008-0341142-0341570 from 341570 to 341569-1
+Fixed row_end for IN1012-0310714-0310893 from 310892 to 310891-1
+Fixed row_end for IN1014-0368387-0369286 from 369286 to 369285-1
+Fixed row_end for IN1016-0360100-0360429 from 360428 to 360427-1
+Fixed row_end for IS1001b-0211557-0211669 from 211668 to 211667-1
+Fixed row_end for IS1002c-0207223-0208083 from 208082 to 208081-1
+Fixed row_end for IS1002d-0126238-0126301 from 126301 to 126300-1
+Fixed row_end for IS1004c-0226279-0226383 from 226382 to 226381-1
+Fixed row_end for IS1006d-0183684-0183916 from 183916 to 183915-1
+Fixed row_end for IS1007c-0211183-0211316 from 211316 to 211315-1
+Fixed row_end for TS3006c-0258209-0258423 from 258423 to 258421-1
+Fixed row_end for TS3009b-0245731-0246004 from 246003 to 246003-1
+Fixed row_end for TS3011d-0215459-0215741 from 215740 to 215739-1
+Fixed row_end for TS3012c-0237522-0237646 from 237646 to 237645-1
+utils/data/subsegment_data_dir.sh: subsegmented data from data/train_whole_hires to exp/segmentation_1a/tdnn_stats_asr_sad_1a/train_seg
+cp: cannot stat 'data/train/stm': No such file or directory
+cp: cannot stat 'data/train/reco2file_and_channel': No such file or directory
+cp: cannot stat 'data/train/glm': No such file or directory
+fix_data_dir.sh: kept all 105145 utterances.
+fix_data_dir.sh: old files are kept in exp/segmentation_1a/tdnn_stats_asr_sad_1a/train_seg/.backup
+steps/segmentation/detect_speech_activity.sh: Created output segmented kaldi data directory in exp/segmentation_1a/tdnn_stats_asr_sad_1a/train_seg
+Concluded SAD segmentation.
+Starting extracting 1.5s segments and splitting into train/valid sets.
+/mnt/md0/user/klingerse62324/EEND/egs/ami/s5c_eda/utils/validate_data_dir.sh: no such directory data/train_seg
+/mnt/md0/user/klingerse62324/EEND/egs/ami/s5c_eda/utils/copy_data_dir.sh: copied data from data/train to data/train_seg
+utils/validate_data_dir.sh: Successfully validated data-directory data/train_seg
+fix_data_dir.sh: kept 53708 utterances out of 105145
+fix_data_dir.sh: old files are kept in data/train_seg/.backup
+Concluding extracting 1.5s segments and splitting into train/valid sets.
+Starting SAD segmentation.
+/mnt/md0/user/klingerse62324/EEND/egs/ami/s5c_eda/utils/validate_data_dir.sh: no such directory exp/segmentation_1a/tdnn_stats_asr_sad_1a/dev_seg
+--nj 50 --graph-opts --min-silence-duration=0.03 --min-speech-duration=0.3 --max-speech-duration=10.0 --transform-probs-opts --sil-scale=0.1 --extra-left-context 79 --extra-right-context 21 --frames-per-chunk 150 --extra-left-context-initial 0 --extra-right-context-final 0 --acwt 0.3 data/dev exp/segmentation_1a/tdnn_stats_asr_sad_1a mfcc_hires exp/segmentation_1a/tdnn_stats_asr_sad_1a exp/segmentation_1a/tdnn_stats_asr_sad_1a/dev
+rm: cannot remove 'data/dev_whole_hires': No such file or directory
+fix_data_dir.sh: kept all 18 utterances.
+fix_data_dir.sh: old files are kept in data/dev_whole_hires/.backup
+fix_data_dir.sh: kept all 18 utterances.
+fix_data_dir.sh: old files are kept in data/dev_whole_hires/.backup
+steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj 50 --cmd run.pl --write-utt2num-frames true data/dev_whole_hires exp/make_hires/dev mfcc_hires
+utils/validate_data_dir.sh: Successfully validated data-directory data/dev_whole_hires
+steps/make_mfcc.sh: [info]: no segments file exists: assuming wav.scp indexed by utterance.
+utils/split_scp.pl: You are splitting into too many pieces! [reduce $nj (50) to be smaller than the number of lines (18) in data/dev_whole_hires/wav.scp]

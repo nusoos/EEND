@@ -1,0 +1,30 @@
+./run_eval2000.sh: Preparing AMI train set.
+get file list
+read audios
+make wav.scp
+make segments
+utils/fix_data_dir.sh: file data/train/utt2spk is not in sorted order or not unique, sorting it
+utils/fix_data_dir.sh: file data/train/spk2utt is not in sorted order or not unique, sorting it
+utils/fix_data_dir.sh: file data/train/segments is not in sorted order or not unique, sorting it
+fix_data_dir.sh: kept 27447 utterances out of 27510
+fix_data_dir.sh: old files are kept in data/train/.backup
+./run_eval2000.sh: Preparing AMI dev set.
+get file list
+read audios
+make wav.scp
+make segments
+utils/fix_data_dir.sh: file data/dev/utt2spk is not in sorted order or not unique, sorting it
+utils/fix_data_dir.sh: file data/dev/spk2utt is not in sorted order or not unique, sorting it
+utils/fix_data_dir.sh: file data/dev/segments is not in sorted order or not unique, sorting it
+fix_data_dir.sh: kept all 3887 utterances.
+fix_data_dir.sh: old files are kept in data/dev/.backup
+./run_eval2000.sh: Preparing AMI test set.
+get file list
+read audios
+make wav.scp
+make segments
+utils/fix_data_dir.sh: file data/test/utt2spk is not in sorted order or not unique, sorting it
+utils/fix_data_dir.sh: file data/test/spk2utt is not in sorted order or not unique, sorting it
+utils/fix_data_dir.sh: file data/test/segments is not in sorted order or not unique, sorting it
+fix_data_dir.sh: kept all 3066 utterances.
+fix_data_dir.sh: old files are kept in data/test/.backup

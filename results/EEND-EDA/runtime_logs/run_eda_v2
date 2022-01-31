@@ -1,0 +1,2 @@
+training model at exp/diarize/model/train_seg.dev_seg.eda_train.
+run.pl: job failed, log is in exp/diarize/model/train_seg.dev_seg.eda_train/.work/train.log

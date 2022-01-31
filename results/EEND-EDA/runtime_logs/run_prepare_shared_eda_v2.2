@@ -1,0 +1,37 @@
+Starting SAD segmentation.
+/mnt/md0/user/klingerse62324/EEND/egs/ami/s5c_eda/utils/validate_data_dir.sh: no such directory exp/segmentation_1a/tdnn_stats_asr_sad_1a/dev_seg
+--nj 18 --graph-opts --min-silence-duration=0.03 --min-speech-duration=0.3 --max-speech-duration=10.0 --transform-probs-opts --sil-scale=0.1 --extra-left-context 79 --extra-right-context 21 --frames-per-chunk 150 --extra-left-context-initial 0 --extra-right-context-final 0 --acwt 0.3 data/dev exp/segmentation_1a/tdnn_stats_asr_sad_1a mfcc_hires exp/segmentation_1a/tdnn_stats_asr_sad_1a exp/segmentation_1a/tdnn_stats_asr_sad_1a/dev
+fix_data_dir.sh: kept all 18 utterances.
+fix_data_dir.sh: old files are kept in data/dev_whole_hires/.backup
+fix_data_dir.sh: kept all 18 utterances.
+fix_data_dir.sh: old files are kept in data/dev_whole_hires/.backup
+steps/make_mfcc.sh --mfcc-config conf/mfcc_hires.conf --nj 18 --cmd run.pl --write-utt2num-frames true data/dev_whole_hires exp/make_hires/dev mfcc_hires
+utils/validate_data_dir.sh: Successfully validated data-directory data/dev_whole_hires
+steps/make_mfcc.sh: [info]: no segments file exists: assuming wav.scp indexed by utterance.
+steps/make_mfcc.sh: Succeeded creating MFCC features for dev_whole_hires
+steps/compute_cmvn_stats.sh data/dev_whole_hires exp/make_hires/dev mfcc_hires
+Succeeded creating CMVN stats for dev_whole_hires
+fix_data_dir.sh: kept all 18 utterances.
+fix_data_dir.sh: old files are kept in data/dev_whole_hires/.backup
+steps/nnet3/compute_output.sh --nj 18 --cmd run.pl --iter final --extra-left-context 79 --extra-right-context 21 --extra-left-context-initial 0 --extra-right-context-final 0 --frames-per-chunk 150 --apply-exp true --frame-subsampling-factor 1 data/dev_whole_hires exp/segmentation_1a/tdnn_stats_asr_sad_1a exp/segmentation_1a/tdnn_stats_asr_sad_1a/sad_dev_whole
+utils/data/get_utt2dur.sh: data/dev_whole_hires/utt2dur already exists with the expected length.  We won't recompute it.
+utils/data/get_utt2dur.sh: data/dev_whole_hires/utt2dur already exists with the expected length.  We won't recompute it.
+utils/data/subsegment_data_dir.sh: note: frame shift is 0.01 [affects feats.scp]
+utils/data/get_utt2num_frames.sh: data/dev_whole_hires/utt2num_frames already present!
+Fixed row_end for ES2011a-0111283-0111384 from 111384 to 111383-1
+Fixed row_end for TS3004c-0296924-0297000 from 296999 to 296998-1
+utils/data/subsegment_data_dir.sh: subsegmented data from data/dev_whole_hires to exp/segmentation_1a/tdnn_stats_asr_sad_1a/dev_seg
+cp: cannot stat 'data/dev/stm': No such file or directory
+cp: cannot stat 'data/dev/reco2file_and_channel': No such file or directory
+cp: cannot stat 'data/dev/glm': No such file or directory
+fix_data_dir.sh: kept all 10265 utterances.
+fix_data_dir.sh: old files are kept in exp/segmentation_1a/tdnn_stats_asr_sad_1a/dev_seg/.backup
+steps/segmentation/detect_speech_activity.sh: Created output segmented kaldi data directory in exp/segmentation_1a/tdnn_stats_asr_sad_1a/dev_seg
+Concluded SAD segmentation.
+Starting extracting 1.5s segments and splitting into train/valid sets.
+/mnt/md0/user/klingerse62324/EEND/egs/ami/s5c_eda/utils/validate_data_dir.sh: no such directory data/dev_seg
+/mnt/md0/user/klingerse62324/EEND/egs/ami/s5c_eda/utils/copy_data_dir.sh: copied data from data/dev to data/dev_seg
+utils/validate_data_dir.sh: Successfully validated data-directory data/dev_seg
+fix_data_dir.sh: kept 6119 utterances out of 10265
+fix_data_dir.sh: old files are kept in data/dev_seg/.backup
+Concluding extracting 1.5s segments and splitting into train/valid sets.

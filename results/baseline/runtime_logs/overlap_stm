@@ -1,0 +1,4 @@
+./run_eval2000.sh: Evaluating output for eval2000.
+MISSED SPEAKER TIME =      3.57 secs ( 79.0 percent of scored speaker time)
+FALARM SPEAKER TIME =     48.71 secs (1077.7 percent of scored speaker time)
+./run_eval2000.sh: Evaluating output for eval2000 done.
