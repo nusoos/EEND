@@ -264,8 +264,8 @@ fi
 if [[ " ${stages[*]} " =~ " ${stage} " ]]; then
   for dataset in $test_sets; do
     echo "$0: Evaluating output for ${dataset}."
-    steps/overlap/get_overlap_segments.py data/$dataset/rttm_from_pem.annotation | grep "overlap" |\
-    # steps/overlap/get_overlap_segments.py data/$dataset/rttm.annotation | grep "overlap" |\
+    # steps/overlap/get_overlap_segments.py data/$dataset/rttm_from_pem.annotation | grep "overlap" |\
+    steps/overlap/get_overlap_segments.py data/$dataset/rttm.annotation | grep "overlap" |\
       md-eval.pl -r - -s exp/overlap_$overlap_affix/$dataset/rttm |\
       awk 'or(/MISSED SPEAKER TIME/,/FALARM SPEAKER TIME/)'
   done
